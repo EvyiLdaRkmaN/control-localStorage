@@ -71,8 +71,8 @@ function addVehiculo(serie, concepts) {
   const currentCart = getDataCart();
 
   /**
-   * @type {cart}
-   */
+      * @type {cart}
+  */
   let newcarrito;
   if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew] }] } };
   else {
@@ -91,7 +91,7 @@ function addVehiculo(serie, concepts) {
 function findSerie(serie) {
   if (typeof serie !== 'string') return;
   const cart = getDataCart();
-  const vehiculo = cart.conceptos.vehiculos.find( e => e.serie === serie);
+  const vehiculo = cart.conceptos.vehiculos.find(e => e.serie === serie);
   return vehiculo;
 }
 
@@ -147,7 +147,7 @@ function addItemCart(item, nameitem) {
  */
 function deleteItem(item) {
   const cart = getDataCart();
-  if(!cart[item]){
+  if (!cart[item]) {
     console.log('Item no encontrado')
     return;
   }
@@ -160,12 +160,12 @@ function deleteItem(item) {
 function deleteConceptVehiculo(serie) {
   const cart = getDataCart();
   const index = cart.conceptos.vehiculos.findIndex(e => e.serie === serie);
-  console.log('existe = ',index);
-  if (index == -1 ) {
+  console.log('existe = ', index);
+  if (index == -1) {
     console.log('La serie no existe en el carrito');
     return;
   }
-  cart.conceptos.vehiculos.splice(index, 1);  
+  cart.conceptos.vehiculos.splice(index, 1);
   setStorage(cart);
   console.log('Elementos eliminados');
 }
@@ -186,27 +186,33 @@ function deleteConcept(id) {
 function createViewCart() {
   const main = document.getElementById('main');
   const currentCart = getDataCart();
+  let totalfinal = 0;
+  const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
   for (const concepto of currentCart.conceptos.vehiculos) {
+    let importetotal = 0;
+    let ejercicios = "";
     for (const conceptVehiculo of concepto.conceptos) {
-      main.appendChild(createRow(conceptVehiculo.nombre, conceptVehiculo.id));
+      if (conceptVehiculo.Concepto == "TENENCIA") {
+        ejercicios += `${conceptVehiculo.Ejercicio},`;
+      }
+      importetotal += conceptVehiculo.TotalPagar;
     }
+    main.appendChild(createRow(currentCart.conceptos.vehiculos.length, ejercicios, formatter.format(importetotal)));
+    totalfinal += importetotal;
   }
+  document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
 }
 
-const createRow = (conceptName = 'tesConcept', id) => {
+const createRow = (conceptName = 'tesConcept', ejercicios, importe) => {
   const rowPrincipal = document.createElement('div');
   rowPrincipal.className = 'row d-flex justify-content-center border-top';
   rowPrincipal.id = conceptName;
-
-  const nombreConcepto = nameConcept();
-  const moreData = dataExtra(conceptName);
-
+  const nombreConcepto = nameConcept("TenenciaParticular", ejercicios);
+  const moreData = dataExtra(conceptName, importe);
   rowPrincipal.appendChild(nombreConcepto);
   rowPrincipal.appendChild(moreData);
-
   return rowPrincipal;
 }
-
 /**
  * 
  * @param {string} data1 concepto
@@ -242,9 +248,7 @@ const nameConcept = (data1 = 'data1', data2 = 'data2') => {
   return div;
 }
 
-const dataExtra = (id) => {
-  const data1 = '1', data2 = '1500';
-
+const dataExtra = (id, importe = '0') => {
   const divPrincipal = document.createElement('div');
   divPrincipal.className = 'my-auto col-7';
 
@@ -273,8 +277,7 @@ const dataExtra = (id) => {
 
   const h6 = document.createElement('div');
   h6.className = 'mob-text';
-  h6.textContent = data2;
-
+  h6.textContent = importe;
   divCol2.appendChild(h6);
   divRow.appendChild(divCol2);
 
