@@ -18,5 +18,322 @@
 </body>
 <script src="./control-localStorage.js" />
 </script>
+<script>
+  deleteConceptVehiculo('0123TEST');
+  // const data = {item1:'richard', item2:'item2', item3:'item3'};
+  // localStorage.setItem('carrito', JSON.stringify({
+  //   "IdCaja": "2",
+  //   "UsuCajero": "UPRUEBAS",
+  //   "IdOficina": "2800",
+  //   "conceptos": {
+  //     "vehiculos": [
+  //       {
+  //         "serie": "0123TEST",
+  //         "conceptos": [
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2017,
+  //             "Importe": 2479,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 502,
+  //             "Recargos": 2241,
+  //             "Subtotal": 5222,
+  //             "ApoyoG": 4722,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2017,
+  //             "Importe": 299,
+  //             "Adicionales": 180,
+  //             "Actualizaciones": 97,
+  //             "Recargos": 433,
+  //             "Subtotal": 1009,
+  //             "ApoyoG": 1009,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2018,
+  //             "Importe": 1919,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 278,
+  //             "Recargos": 1324,
+  //             "Subtotal": 3521,
+  //             "ApoyoG": 3021,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2018,
+  //             "Importe": 319,
+  //             "Adicionales": 192,
+  //             "Actualizaciones": 74,
+  //             "Recargos": 353,
+  //             "Subtotal": 938,
+  //             "ApoyoG": 938,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2019,
+  //             "Importe": 1414,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 142,
+  //             "Recargos": 663,
+  //             "Subtotal": 2219,
+  //             "ApoyoG": 1719,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2019,
+  //             "Importe": 335,
+  //             "Adicionales": 200,
+  //             "Actualizaciones": 54,
+  //             "Recargos": 251,
+  //             "Subtotal": 840,
+  //             "ApoyoG": 840,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2020,
+  //             "Importe": 344,
+  //             "Adicionales": 208,
+  //             "Actualizaciones": 36,
+  //             "Recargos": 147,
+  //             "Subtotal": 735,
+  //             "ApoyoG": 0,
+  //             "TotalPagar": 735
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2021,
+  //             "Importe": 465,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 0,
+  //             "Recargos": 0,
+  //             "Subtotal": 465,
+  //             "ApoyoG": 465,
+  //             "TotalPagar": 0
+  //           }
+  //         ]
+  //       },
+  //       {
+  //         "serie": "richardTest",
+  //         "conceptos": [
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2017,
+  //             "Importe": 2479,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 502,
+  //             "Recargos": 2241,
+  //             "Subtotal": 5222,
+  //             "ApoyoG": 4722,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2017,
+  //             "Importe": 299,
+  //             "Adicionales": 180,
+  //             "Actualizaciones": 97,
+  //             "Recargos": 433,
+  //             "Subtotal": 1009,
+  //             "ApoyoG": 1009,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2018,
+  //             "Importe": 1919,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 278,
+  //             "Recargos": 1324,
+  //             "Subtotal": 3521,
+  //             "ApoyoG": 3021,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2018,
+  //             "Importe": 319,
+  //             "Adicionales": 192,
+  //             "Actualizaciones": 74,
+  //             "Recargos": 353,
+  //             "Subtotal": 938,
+  //             "ApoyoG": 938,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2019,
+  //             "Importe": 1414,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 142,
+  //             "Recargos": 663,
+  //             "Subtotal": 2219,
+  //             "ApoyoG": 1719,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2019,
+  //             "Importe": 335,
+  //             "Adicionales": 200,
+  //             "Actualizaciones": 54,
+  //             "Recargos": 251,
+  //             "Subtotal": 840,
+  //             "ApoyoG": 840,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2020,
+  //             "Importe": 344,
+  //             "Adicionales": 208,
+  //             "Actualizaciones": 36,
+  //             "Recargos": 147,
+  //             "Subtotal": 735,
+  //             "ApoyoG": 0,
+  //             "TotalPagar": 735
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2021,
+  //             "Importe": 465,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 0,
+  //             "Recargos": 0,
+  //             "Subtotal": 465,
+  //             "ApoyoG": 465,
+  //             "TotalPagar": 0
+  //           }
+  //         ]
+  //       },
+  //       {
+  //         "serie": "RichardTest2",
+  //         "conceptos": [
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2017,
+  //             "Importe": 2479,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 502,
+  //             "Recargos": 2241,
+  //             "Subtotal": 5222,
+  //             "ApoyoG": 4722,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2017,
+  //             "Importe": 299,
+  //             "Adicionales": 180,
+  //             "Actualizaciones": 97,
+  //             "Recargos": 433,
+  //             "Subtotal": 1009,
+  //             "ApoyoG": 1009,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2018,
+  //             "Importe": 1919,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 278,
+  //             "Recargos": 1324,
+  //             "Subtotal": 3521,
+  //             "ApoyoG": 3021,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2018,
+  //             "Importe": 319,
+  //             "Adicionales": 192,
+  //             "Actualizaciones": 74,
+  //             "Recargos": 353,
+  //             "Subtotal": 938,
+  //             "ApoyoG": 938,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2019,
+  //             "Importe": 1414,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 142,
+  //             "Recargos": 663,
+  //             "Subtotal": 2219,
+  //             "ApoyoG": 1719,
+  //             "TotalPagar": 500
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2019,
+  //             "Importe": 335,
+  //             "Adicionales": 200,
+  //             "Actualizaciones": 54,
+  //             "Recargos": 251,
+  //             "Subtotal": 840,
+  //             "ApoyoG": 840,
+  //             "TotalPagar": 0
+  //           },
+  //           {
+  //             "Concepto": "REFRENDO",
+  //             "CveDerecho": 120,
+  //             "Ejercicio": 2020,
+  //             "Importe": 344,
+  //             "Adicionales": 208,
+  //             "Actualizaciones": 36,
+  //             "Recargos": 147,
+  //             "Subtotal": 735,
+  //             "ApoyoG": 0,
+  //             "TotalPagar": 735
+  //           },
+  //           {
+  //             "Concepto": "TENENCIA",
+  //             "CveDerecho": 0,
+  //             "Ejercicio": 2021,
+  //             "Importe": 465,
+  //             "Adicionales": 0,
+  //             "Actualizaciones": 0,
+  //             "Recargos": 0,
+  //             "Subtotal": 465,
+  //             "ApoyoG": 465,
+  //             "TotalPagar": 0
+  //           }
+  //         ]
+  //       }
+  //     ]
+  //   }
+  // }));
+
+</script>
 
 </html>

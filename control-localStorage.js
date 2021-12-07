@@ -1,7 +1,29 @@
 const ITEM_CART = 'carrito';
+
 /**
- * retorna toda la informaciÃ³n del carrito
- * @returns {object}
+ * definición de conceptos
+ * @typedef {object} concepto
+ * @property {number} id
+ * @property {string} descripcion
+ * @property {string} nombre
+ */
+
+/**
+ * Parametros del carrito
+ * @typedef {object} cart
+ * @property {number} cart.cajero
+ * @property {number} cart.caja
+ * @property {number} cart.oficina
+ * @property {object} cart.conceptos
+ * @property {object[]} cart.conceptos.vehiculos
+ * @property {string} cart.conceptos.vehiculos[].serie
+ * @property {concepto[]} cart.conceptos.vehiculos[].conceptos
+ * @property {concepto[]} cart.conceptos.otros
+ */
+
+/**
+ * retorna toda la información del carrito
+ * @returns {cart}
  */
 const getDataCart = () => JSON.parse(localStorage.getItem(ITEM_CART));
 
@@ -28,7 +50,40 @@ function initCarrito(cart) {
   return getDataCart();
 }
 
-function newConcept(concepts) {
+/**
+ * 
+ * @param {cart} cart 
+ */
+const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart));
+
+/**
+ * 
+ * @param {string} serie 
+ * @param {object[]} concepts 
+ * @returns {string|boolean}
+ */
+function addVehiculo(serie, concepts) {
+  let conceptNew;
+  if (Array.isArray(concepts)) conceptNew = concepts;
+  else if (typeof concepts === "object") conceptNew = [concepts];
+  else return 'error el concepto no es objecto ni array';
+
+  const currentCart = getDataCart();
+
+  /**
+   * @type {cart}
+   */
+  let newcarrito;
+  if (!carrito.Conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew] }] } };
+  else {
+    const vehiculosOld = currentCart.conceptos.vehiculos;
+    newcarrito = { ...carrito, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew] }] } };
+  }
+  setStorage(newcarrito);
+  return true;
+}
+
+function addConcept(concepts) {
   console.log(concepts)
   // validaciones
   let conceptNew;
@@ -37,14 +92,17 @@ function newConcept(concepts) {
   else return 'error el concepto no es objecto ni array';
 
   let carrito = getDataCart();
-
-  if (!carrito.Conceptos) {
-    let newcarrito = { ...carrito, Conceptos: conceptNew };
-    localStorage.setItem(ITEM_CART, JSON.stringify(newcarrito));
-  } else {
+  /**
+   * @type {cart}
+   */
+  let newcarrito;
+  if (!carrito.conceptos) newcarrito = { ...carrito, conceptos: { otros: [...conceptNew] } };
+  else {
     const conceptsOld = carrito.conceptos;
-    localStorage.setItem(ITEM_CART, JSON.stringify({ ...carrito, conceptos: [...conceptsOld, ...conceptNew] }));
+    newcarrito = { ...carrito, conceptos: { otros: [...conceptsOld, ...conceptNew] } };
   }
+  setStorage(newcarrito);
+  return true;
 }
 
 /**
@@ -71,6 +129,34 @@ function addItemCart(item, nameitem) {
   return { ...cart, item };
 }
 
+/**
+ * Elimina un item con el nombre proporcionado
+ * @param {string} item nombre del item a eliminar
+ */
+function deleteItem(item) {
+  const cart = getDataCart();
+  if(!cart[item]){
+    console.log('Item no encontrado')
+    return;
+  }
+  delete cart[item];
+
+  setStorage(cart);
+  console.log('Item eliminado')
+}
+
+function deleteConceptVehiculo(serie) {
+  const cart = getDataCart();
+  const index = cart.conceptos.vehiculos.findIndex(e => e.serie === serie);
+  console.log('existe = ',index);
+  if (index == -1 ) {
+    console.log('La serie no existe en el carrito');
+    return;
+  }
+  cart.conceptos.vehiculos.splice(index, 1);  
+  setStorage(newCart);
+  console.log('Elementos eliminados');
+}
 
 function cleanCart() {
   localStorage.removeItem(ITEM_CART);
@@ -87,19 +173,19 @@ function deleteConcept(id) {
 
 function createViewCart() {
   const main = document.getElementById('main');
-  // const divTabla = document.getElementById('principal');
-  main.appendChild(createRow('data1', '1'));
-  main.appendChild(createRow('data2', '2'));
-  main.appendChild(createRow('data3', '3'));
-
-
+  const currentCart = getDataCart();
+  for (const concepto of currentCart.conceptos.vehiculos) {
+    for (const conceptVehiculo of concepto.conceptos) {
+      main.appendChild(createRow(conceptVehiculo.nombre, conceptVehiculo.id));
+    }
+  }
 }
 
 const createRow = (conceptName = 'tesConcept', id) => {
   const rowPrincipal = document.createElement('div');
   rowPrincipal.className = 'row d-flex justify-content-center border-top';
   rowPrincipal.id = conceptName;
-  
+
   const nombreConcepto = nameConcept();
   const moreData = dataExtra(conceptName);
 
