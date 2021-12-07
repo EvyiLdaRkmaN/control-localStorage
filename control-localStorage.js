@@ -74,10 +74,10 @@ function addVehiculo(serie, concepts) {
    * @type {cart}
    */
   let newcarrito;
-  if (!carrito.Conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew] }] } };
+  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew] }] } };
   else {
     const vehiculosOld = currentCart.conceptos.vehiculos;
-    newcarrito = { ...carrito, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew] }] } };
+    newcarrito = { ...currentCart, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew] }] } };
   }
   setStorage(newcarrito);
   return true;
@@ -154,7 +154,7 @@ function deleteConceptVehiculo(serie) {
     return;
   }
   cart.conceptos.vehiculos.splice(index, 1);  
-  setStorage(newCart);
+  setStorage(cart);
   console.log('Elementos eliminados');
 }
 
