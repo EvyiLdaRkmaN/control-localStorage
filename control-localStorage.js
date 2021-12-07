@@ -83,6 +83,18 @@ function addVehiculo(serie, concepts) {
   return true;
 }
 
+/**
+ * busca un vehiculo por la serie
+ * @param {string} serie 
+ * @returns {object | undefined}
+ */
+function findSerie(serie) {
+  if (typeof serie !== 'string') return;
+  const cart = getDataCart();
+  const vehiculo = cart.conceptos.vehiculos.find( e => e.serie === serie);
+  return vehiculo;
+}
+
 function addConcept(concepts) {
   console.log(concepts)
   // validaciones
