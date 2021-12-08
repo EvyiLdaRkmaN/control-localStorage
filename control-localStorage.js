@@ -110,7 +110,7 @@ function addConcept(concepts) {
   let newcarrito;
   if (!carrito.conceptos) newcarrito = { ...carrito, conceptos: { otros: [...conceptNew] } };
   else {
-    const conceptsOld = carrito.conceptos;
+    const conceptsOld = carrito.conceptos.otros;
     newcarrito = { ...carrito, conceptos: { otros: [...conceptsOld, ...conceptNew] } };
   }
   setStorage(newcarrito);
@@ -180,6 +180,15 @@ function deleteConcept(id) {
 }
 
 /**
+ * Removera completamente el elemento de la vista
+ * al igual que eliminará el elemnto del localStorage
+ * @param {string} id elemento a eliminar
+ */
+function removeElementCart(id) {
+  document.getElementById('main').removeChild(document.getElementById(id));
+}
+
+/**
  * ========================================================================
  */
 
@@ -197,18 +206,27 @@ function createViewCart() {
       }
       importetotal += conceptVehiculo.TotalPagar;
     }
-    main.appendChild(createRow(currentCart.conceptos.vehiculos.length, ejercicios, formatter.format(importetotal)));
+    main.appendChild(createRow(concepto.serie,1, ejercicios, formatter.format(importetotal)));
     totalfinal += importetotal;
   }
-  document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
+  // document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
 }
 
-const createRow = (conceptName = 'tesConcept', ejercicios, importe) => {
+/**
+ * crea la fila con para la vista y con lo necesario para poder eliminar, actualmente
+ * esta adaptado para vehiculos con su serie
+ * @param {string} id identificador de la fila (actualmente serie vehiculo)
+ * @param {number} cantidad elementos con el mismo concepto
+ * @param {*} ejercicios 
+ * @param {number} importe total del importe
+ * @returns {HTMLDivElement}
+ */
+const createRow = (id,cantidad = 1, ejercicios, importe) => {
   const rowPrincipal = document.createElement('div');
   rowPrincipal.className = 'row d-flex justify-content-center border-top';
-  rowPrincipal.id = conceptName;
+  rowPrincipal.id = id;
   const nombreConcepto = nameConcept("TenenciaParticular", ejercicios);
-  const moreData = dataExtra(conceptName, importe);
+  const moreData = dataExtra(id,cantidad, importe);
   rowPrincipal.appendChild(nombreConcepto);
   rowPrincipal.appendChild(moreData);
   return rowPrincipal;
@@ -248,7 +266,7 @@ const nameConcept = (data1 = 'data1', data2 = 'data2') => {
   return div;
 }
 
-const dataExtra = (id, importe = '0') => {
+const dataExtra = (id, cantidad, importe = '0') => {
   const divPrincipal = document.createElement('div');
   divPrincipal.className = 'my-auto col-7';
 
@@ -266,7 +284,7 @@ const dataExtra = (id, importe = '0') => {
   const p = document.createElement('p');
   p.className = 'mb-0';
   p.id = 'cnt1';
-  p.textContent = id;
+  p.textContent = cantidad;
 
   divContenedor1.appendChild(p);
   divCol.appendChild(divContenedor1);
@@ -289,7 +307,8 @@ const dataExtra = (id, importe = '0') => {
   i.className = 'fas fa-trash';
   i.textContent = 'sin nada';
   i.textContent = 'eliminar'
-  i.onclick = () => document.getElementById('main').removeChild(document.getElementById(id));
+  console.log('id =>', id);
+  i.onclick = ()=>removeElementCart(id);
 
   divCol3.appendChild(i);
   divRow.appendChild(divCol3);
@@ -300,5 +319,7 @@ const dataExtra = (id, importe = '0') => {
   return divPrincipal;
 }
 
-createViewCart();
+window.addEventListener('storage',(e)=>{
+  console.log('storage event =>', e);
+});
 
