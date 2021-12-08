@@ -126,7 +126,7 @@ function getNumConcepts() {
   if (!cart.conceptos) {
     return 0;
   }
-  return cart.conceptos.lenght()
+  return cart.conceptos.vehiculos.length
 }
 
 /**
@@ -185,8 +185,24 @@ function deleteConcept(id) {
  * @param {string} id elemento a eliminar
  */
 function removeElementCart(id) {
+  deleteConceptVehiculo(id);
   document.getElementById('main').removeChild(document.getElementById(id));
+  updateNumCart();
 }
+
+let count = 0;
+function addElementCartTest(e) {
+  count++;
+  // addVehiculo('test'+count,[{serie:'test'+count}]);
+  localStorage.setItem('nuevo'+count,'data insert');
+}
+
+function updateNumCart() {
+  const element = document.getElementById('countCart');
+  element.textContent = getNumConcepts();
+}
+
+updateNumCart();
 
 /**
  * ========================================================================
@@ -319,7 +335,11 @@ const dataExtra = (id, cantidad, importe = '0') => {
   return divPrincipal;
 }
 
-window.addEventListener('storage',(e)=>{
-  console.log('storage event =>', e);
-});
 
+// window.addEventListener('storage',(e)=>{
+//   console.log('storage event =>', e);
+// },false);
+
+// window.onstorage = ()=>{
+//   console.log('evento storage')
+// }
