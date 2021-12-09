@@ -5,8 +5,16 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * definición de conceptos
  * @typedef {object} concepto
  * @property {number} id
- * @property {string} descripcion
+ * @property {string} Concepto
  * @property {string} nombre
+ * @property {number} Ejercicio
+ */
+
+/**
+ * definición vehiculo
+ * @typedef {object} vehiculo
+ * @property {string} serie
+ * @property {concepto[]} conceptos
  */
 
 /**
@@ -16,9 +24,7 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * @property {number} cart.caja
  * @property {number} cart.oficina
  * @property {object} cart.conceptos
- * @property {object[]} cart.conceptos.vehiculos
- * @property {string} cart.conceptos.vehiculos[].serie
- * @property {concepto[]} cart.conceptos.vehiculos[].conceptos
+ * @property {vehiculo[]} cart.conceptos.vehiculos
  * @property {concepto[]} cart.conceptos.otros
  */
 
@@ -85,9 +91,24 @@ function addVehiculo(serie, concepts) {
 }
 
 /**
+ * Obtiene el ultimo año del vehiculo
+ * si el vehiculo no tiene tenencia, retornara 0  
+ * @param {string} serie 
+ * @returns {number}
+ */
+function getLastYearVehiculo(serie) {
+  const vehiculo = findSerie(serie);
+  if (!vehiculo) return;
+  
+  const years = Array.from(vehiculo.conceptos, c=> c.Concepto === 'TENENCIA' ? c.Ejercicio : 0);
+  const lastYear = Math.max(...years);
+  return lastYear;
+}
+
+/**
  * busca un vehiculo por la serie
  * @param {string} serie 
- * @returns {object | undefined}
+ * @returns {vehiculo | undefined}
  */
 function findSerie(serie) {
   if (typeof serie !== 'string') return;
@@ -200,13 +221,6 @@ function removeElementCart(id) {
 
   document.getElementById('TotalFinal').textContent = formatter.format(importetotal);
   updateNumCart();
-}
-
-let count = 0;
-function addElementCartTest(e) {
-  count++;
-  // addVehiculo('test'+count,[{serie:'test'+count}]);
-  localStorage.setItem('nuevo' + count, 'data insert');
 }
 
 function updateNumCart() {
