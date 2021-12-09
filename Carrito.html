@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>Sistema Pago Referenciado</title>
+    <link rel="shortcut icon" href="/img/e.png" />
+
+    <!-- Custom fonts for this template-->
+    <link href="vendor/fontawesome-free/css/all.min.css" rel="stylesheet" type="text/css">
+    <link
+        href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i"
+        rel="stylesheet">
+
+    <!-- Custom styles for this template-->
+    <link href="css/sb-admin-2.css" rel="stylesheet">
+    <link href="Tenencia/PagoTenencia2/estilos/carrito.css" rel="stylesheet">
+    <style>
+        body {
+            color: #000;
+            overflow-x: hidden;
+            height: 100%;
+            background-color: #fff;
+            background-repeat: no-repeat
+        }
+
+        .plus-minus {
+            position: relative
+        }
+
+        .plus {
+            position: absolute;
+            top: -4px;
+            left: 2px;
+            cursor: pointer
+        }
+
+        .minus {
+            position: absolute;
+            top: 8px;
+            left: 5px;
+            cursor: pointer
+        }
+
+        .vsm-text:hover {
+            color: #FF5252
+        }
+
+        .book,
+        .book-img {
+            width: 120px;
+            height: 180px;
+            border-radius: 5px
+        }
+
+        .book {
+            margin: 20px 15px 5px 15px
+        }
+
+        .border-top {
+            border-top: 1px solid #EEEEEE !important;
+            margin-top: 20px;
+            padding-top: 15px
+        }
+
+        .card {
+            margin: 40px 0px;
+            padding: 40px 50px;
+            border-radius: 20px;
+            border: none;
+            box-shadow: 1px 5px 10px 1px rgba(0, 0, 0, 0.2)
+        }
+
+        input,
+        textarea {
+            background-color: #F3E5F5;
+            padding: 8px 15px 8px 15px;
+            width: 100%;
+            border-radius: 5px !important;
+            box-sizing: border-box;
+            border: 1px solid #F3E5F5;
+            font-size: 15px !important;
+            color: #000 !important;
+            font-weight: 300
+        }
+
+        input:focus,
+        textarea:focus {
+            -moz-box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important;
+            border: 1px solid #9FA8DA;
+            outline-width: 0;
+            font-weight: 400
+        }
+
+        button:focus {
+            -moz-box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            box-shadow: none !important;
+            outline-width: 0
+        }
+
+        .pay {
+            width: 80px;
+            height: 40px;
+            border-radius: 5px;
+            border: 1px solid #673AB7;
+            margin: 10px 20px 10px 0px;
+            cursor: pointer;
+            box-shadow: 1px 5px 10px 1px rgba(0, 0, 0, 0.2)
+        }
+
+        .gray {
+            -webkit-filter: grayscale(100%);
+            -moz-filter: grayscale(100%);
+            -o-filter: grayscale(100%);
+            -ms-filter: grayscale(100%);
+            filter: grayscale(100%);
+            color: #E0E0E0
+        }
+
+        .gray .pay {
+            box-shadow: none
+        }
+
+        #tax {
+            border-top: 1px lightgray solid;
+            margin-top: 10px;
+            padding-top: 10px
+        }
+
+        .btn-blue {
+            border: none;
+            border-radius: 10px;
+            background-color: #673AB7;
+            color: #fff;
+            padding: 8px 15px;
+            margin: 20px 0px;
+            cursor: pointer
+        }
+
+        .btn-blue:hover {
+            background-color: #311B92;
+            color: #fff
+        }
+
+        #checkout {
+            float: left
+        }
+
+        #check-amt {
+            float: right
+        }
+
+        @media screen and (max-width: 768px) {
+
+            .book,
+            .book-img {
+                width: 100px;
+                height: 150px
+            }
+
+            .card {
+                padding-left: 15px;
+                padding-right: 15px
+            }
+
+            .mob-text {
+                font-size: 13px
+            }
+
+            .pad-left {
+                padding-left: 20px
+            }
+        }
+    </style>
+</head>
+
+<body id="page-top">
+    <!-- Page Wrapper -->
+    <div id="wrapper">
+        <!-- Sidebar -->
+        <?php include 'Siderbar.php'; ?>
+        <!-- End of Sidebar -->
+
+        <!-- Content Wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+
+            <!-- Main Content -->
+            <div id="content">
+
+                <!-- Topbar -->
+                <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+                    <!-- Sidebar Toggle (Topbar) -->
+                    <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
+                        <i class="fa fa-bars"></i>
+                    </button>
+
+                    <!-- Topbar Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                        <div class="topbar-divider d-none d-sm-block"></div>
+
+                        <!-- Nav Item - User Information -->
+
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="Carrito.php" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <div class="notification-container">
+                                    <i class="icon-globe"></i>
+                                    <span class="notification-counter">0</span>
+                                </div>
+                                <i class="fas fa-shopping-cart"></i>
+                            </a>
+                        </li>
+                        <div class="topbar-divider d-none d-sm-block"></div>
+                        <li class="nav-item dropdown no-arrow">
+                            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="mr-2 d-none d-lg-inline text-gray-600 small">
+                                    <?php echo $_SESSION['nombre']; ?>
+                                </span>
+                                <img class="img-profile rounded-circle" src="/img/e.png">
+                            </a>
+                            <!-- Dropdown - User Information -->
+                            <div class="dropdown-menu dropdown-menu-right shadow animated--grow-in"
+                                aria-labelledby="userDropdown">
+                                <a class="dropdown-item" href="logout.php" data-toggle="modal"
+                                    data-target="#logoutModal">
+                                    <i class="fas fa-sign-out-alt fa-sm fa-fw mr-2 text-gray-400"></i>
+                                    Cerrar Sesi&oacute;n
+                                </a>
+                            </div>
+                        </li>
+                    </ul>
+                </nav>
+                <!-- End of Topbar -->
+
+                <!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <input type="hidden" id="IdCaja" value="<?php echo $IdCaja; ?>">
+                    <input type="hidden" id="UsuCajero" value="<?php echo $UsuCaja; ?>">
+                    <input type="hidden" id="IdOficina" value="<?php echo $IdOficina; ?>">
+
+                    <div class="container px-4 py-5 mx-auto border rounded">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-5">
+                                <h4 class="heading">Concepto</h4>
+                            </div>
+                            <div class="col-7">
+                                <div class="row text-right">
+                                    <div class="col-4">
+                                        <h6 class="mt-2">Cantidad</h6>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6 class="mt-2">Precio</h6>
+                                    </div>
+                                    <div class="col-4">
+                                        <h6 class="mt-2"> </h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="main">
+
+                        </div>
+                        <div class="row justify-content-center">
+                            <div class="col-lg-12">
+                                <div class="card">
+                                    <div class="row justify-content-end">
+                                        <div class="col-4 mt-2">
+                                            <div class="row d-flex justify-content-between px-4" id="tax">
+                                                <p class="mb-1 text-left">Total</p>
+                                                <h6 id="TotalFinal" class="mb-1 text-right"></h6>
+                                            </div>
+                                            <button class="btn-block btn-blue">
+                                                <span class="textcenter">
+                                                    <span id="checkout">Generar Hoja de Pago</span>
+                                                </span>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /.container-fluid -->
+            </div>
+            <!-- End of Main Content -->
+        </div>
+        <!-- End of Content Wrapper -->
+    </div>
+    <!-- End of Page Wrapper -->
+
+    <!-- Scroll to Top Button-->
+    <a class="scroll-to-top rounded" href="#page-top">
+        <i class="fas fa-angle-up"></i>
+    </a>
+
+    <!-- Bootstrap core JavaScript-->
+    <script src="vendor/jquery/jquery.min.js"></script>
+    <script src="vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="vendor/jquery-easing/jquery.easing.min.js"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="js/sb-admin-2.min.js"></script>
+    <script src="js/control-localStorage.js"></script>
+    <script>
+        $(document).ready(function () {
+            createViewCart()
+            $('.radio-group .radio').click(function () {
+                $('.radio').addClass('gray');
+                $(this).removeClass('gray');
+            });
+
+            $('.plus-minus .plus').click(function () {
+                var count = $(this).parent().prev().text();
+                $(this).parent().prev().html(Number(count) + 1);
+            });
+
+            $('.plus-minus .minus').click(function () {
+                var count = $(this).parent().prev().text();
+                $(this).parent().prev().html(Number(count) - 1);
+            });
+        });
+    </script>
+</body>
+
+</html>

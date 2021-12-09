@@ -1,4 +1,5 @@
 const ITEM_CART = 'carrito';
+const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
 /**
  * definición de conceptos
@@ -187,6 +188,17 @@ function deleteConcept(id) {
 function removeElementCart(id) {
   deleteConceptVehiculo(id);
   document.getElementById('main').removeChild(document.getElementById(id));
+  const {conceptos:{vehiculos}} = getDataCart();
+
+  // Calculando el nuevo total
+  let importetotal = 0;
+  for (const {conceptos} of vehiculos) {
+    for (const {TotalPagar} of conceptos) {
+      importetotal += TotalPagar;
+    }
+  }
+
+  document.getElementById('TotalFinal').textContent = formatter.format(importetotal);
   updateNumCart();
 }
 
@@ -194,7 +206,7 @@ let count = 0;
 function addElementCartTest(e) {
   count++;
   // addVehiculo('test'+count,[{serie:'test'+count}]);
-  localStorage.setItem('nuevo'+count,'data insert');
+  localStorage.setItem('nuevo' + count, 'data insert');
 }
 
 function updateNumCart() {
@@ -212,7 +224,6 @@ function createViewCart() {
   const main = document.getElementById('main');
   const currentCart = getDataCart();
   let totalfinal = 0;
-  const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
   for (const concepto of currentCart.conceptos.vehiculos) {
     let importetotal = 0;
     let ejercicios = "";
@@ -222,10 +233,10 @@ function createViewCart() {
       }
       importetotal += conceptVehiculo.TotalPagar;
     }
-    main.appendChild(createRow(concepto.serie,1, ejercicios, formatter.format(importetotal)));
+    main.appendChild(createRow(concepto.serie, 1, ejercicios, formatter.format(importetotal)));
     totalfinal += importetotal;
   }
-  // document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
+  document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
 }
 
 /**
@@ -237,12 +248,12 @@ function createViewCart() {
  * @param {number} importe total del importe
  * @returns {HTMLDivElement}
  */
-const createRow = (id,cantidad = 1, ejercicios, importe) => {
+const createRow = (id, cantidad = 1, ejercicios, importe) => {
   const rowPrincipal = document.createElement('div');
   rowPrincipal.className = 'row d-flex justify-content-center border-top';
   rowPrincipal.id = id;
   const nombreConcepto = nameConcept("TenenciaParticular", ejercicios);
-  const moreData = dataExtra(id,cantidad, importe);
+  const moreData = dataExtra(id, cantidad, importe);
   rowPrincipal.appendChild(nombreConcepto);
   rowPrincipal.appendChild(moreData);
   return rowPrincipal;
@@ -324,7 +335,7 @@ const dataExtra = (id, cantidad, importe = '0') => {
   i.textContent = 'sin nada';
   i.textContent = 'eliminar'
   console.log('id =>', id);
-  i.onclick = ()=>removeElementCart(id);
+  i.onclick = () => removeElementCart(id);
 
   divCol3.appendChild(i);
   divRow.appendChild(divCol3);
