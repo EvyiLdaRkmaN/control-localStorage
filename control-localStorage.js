@@ -21,7 +21,7 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * 
  * @typedef {object} diversos
  * @property {string} id
- * @property {object[]} vista
+ * @property {object} vista
  * @property {string} vista.titulo
  * @property {string} vista.descripcion
  * @property {number} vista.importeTotal
@@ -208,6 +208,23 @@ function deleteConceptVehiculo(serie) {
   cart.conceptos.vehiculos.splice(index, 1);
   setStorage(cart);
   console.log('Elementos eliminados');
+}
+/**
+ * 
+ * @param {diversos} object 
+ * @returns 
+ */
+function addDiversos(object) {
+  let cart = getDataCart();
+  
+  if (!object.id) {
+    console.log('Falta el dato id');
+    return;
+  }
+  if (!cart.conceptos.otros) cart = {...cart, conceptos:{...cart.conceptos, otros:[object]}}
+  else cart.conceptos.otros.push(object);
+  
+  setStorage(cart);
 }
 
 function addObjeFree(id, object) {
