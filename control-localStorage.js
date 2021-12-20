@@ -18,6 +18,21 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  */
 
 /**
+ * 
+ * @typedef {object} diversos
+ * @property {string} id
+ * @property {object[]} vista
+ * @property {string} vista.titulo
+ * @property {string} vista.descripcion
+ * @property {number} vista.importeTotal
+ * @property {object[]} cuentas
+ * @property {number} cuentas.cuenta
+ * @property {number} cuentas.cantidad
+ * @property {number} cuentas.importe
+ * @property {object[]} objectFree
+ */
+
+/**
  * Parametros del carrito
  * @typedef {object} cart
  * @property {number} cart.cajero
@@ -25,7 +40,7 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * @property {number} cart.oficina
  * @property {object} cart.conceptos
  * @property {vehiculo[]} cart.conceptos.vehiculos
- * @property {concepto[]} cart.conceptos.otros
+ * @property {diversos[]} cart.conceptos.otros
  */
 
 /**
@@ -61,7 +76,10 @@ function initCarrito(cart) {
  * 
  * @param {cart} cart 
  */
-const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart));
+const setStorage = (cart) => {
+  localStorage.setItem(ITEM_CART, JSON.stringify(cart));
+  dispararEvento();
+};
 
 /**
  * 
@@ -99,8 +117,8 @@ function addVehiculo(serie, concepts) {
 function getLastYearVehiculo(serie) {
   const vehiculo = findSerie(serie);
   if (!vehiculo) return;
-  
-  const years = Array.from(vehiculo.conceptos, c=> c.Concepto === 'TENENCIA' ? c.Ejercicio : 0);
+
+  const years = Array.from(vehiculo.conceptos, c => c.Concepto === 'TENENCIA' ? c.Ejercicio : 0);
   const lastYear = Math.max(...years);
   return lastYear;
 }
@@ -192,6 +210,18 @@ function deleteConceptVehiculo(serie) {
   console.log('Elementos eliminados');
 }
 
+function addObjeFree(id, object) {
+  const cart = getDataCart();
+  const index = cart.conceptos.otros.findIndex(e => e.id === id);
+  if (index == -1) {
+    console.log('No existe el idBuscado');
+    return;
+  }
+  
+  cart.conceptos.otros[index].objectFree.push(object);
+  setStorage(cart);
+}
+
 function cleanCart() {
   localStorage.removeItem(ITEM_CART);
 }
@@ -209,12 +239,12 @@ function deleteConcept(id) {
 function removeElementCart(id) {
   deleteConceptVehiculo(id);
   document.getElementById('main').removeChild(document.getElementById(id));
-  const {conceptos:{vehiculos}} = getDataCart();
+  const { conceptos: { vehiculos } } = getDataCart();
 
   // Calculando el nuevo total
   let importetotal = 0;
-  for (const {conceptos} of vehiculos) {
-    for (const {TotalPagar} of conceptos) {
+  for (const { conceptos } of vehiculos) {
+    for (const { TotalPagar } of conceptos) {
       importetotal += TotalPagar;
     }
   }
@@ -228,7 +258,6 @@ function updateNumCart() {
   element.textContent = getNumConcepts();
 }
 
-updateNumCart();
 
 /**
  * ========================================================================
@@ -244,6 +273,10 @@ function createViewCart() {
     for (const conceptVehiculo of concepto.conceptos) {
       if (conceptVehiculo.Concepto == "TENENCIA") {
         ejercicios += `${conceptVehiculo.Ejercicio},`;
+
+
+
+        
       }
       importetotal += conceptVehiculo.TotalPagar;
     }
@@ -368,3 +401,16 @@ const dataExtra = (id, cantidad, importe = '0') => {
 // window.onstorage = ()=>{
 //   console.log('evento storage')
 // }
+
+function dispararEvento() {
+  const myEvent = new CustomEvent('myEventPersonal', { "detail": 'Modificando cart' });
+  document.dispatchEvent(myEvent);
+}
+
+// my event handler
+document.addEventListener('myEventPersonal', e => {
+  console.log(e.detail);
+  updateNumCart();
+});
+
+
