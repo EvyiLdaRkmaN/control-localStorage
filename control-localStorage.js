@@ -131,6 +131,7 @@ function getLastYearVehiculo(serie) {
 function findSerie(serie) {
   if (typeof serie !== 'string') return;
   const cart = getDataCart();
+  if (!cart.conceptos || !cart.conceptos.vehiculos) return;
   const vehiculo = cart.conceptos.vehiculos.find(e => e.serie === serie);
   return vehiculo;
 }
