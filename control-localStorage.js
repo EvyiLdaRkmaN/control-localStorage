@@ -76,10 +76,7 @@ function initCarrito(cart) {
  * 
  * @param {cart} cart 
  */
-const setStorage = (cart) => {
-  localStorage.setItem(ITEM_CART, JSON.stringify(cart));
-  dispararEvento();
-};
+const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart));
 
 /**
  * 
@@ -87,10 +84,15 @@ const setStorage = (cart) => {
  * @param {object[]} concepts 
  * @returns {string|boolean}
  */
-function addVehiculo(serie, concepts) {
+function addVehiculo(serie, concepts, info, placa, clase, Tplaca,Propietario) { //TODO: Revisar el uso de variable infoNew, por que parece no ser usada
   let conceptNew;
+  let infoNew;
   if (Array.isArray(concepts)) conceptNew = concepts;
   else if (typeof concepts === "object") conceptNew = [concepts];
+  else return 'error el concepto no es objecto ni array';
+  
+  if (Array.isArray(info)) infoNew = info;
+  else if (typeof info === "object") infoNew = [info];
   else return 'error el concepto no es objecto ni array';
 
   const currentCart = getDataCart();
@@ -99,10 +101,10 @@ function addVehiculo(serie, concepts) {
       * @type {cart}
   */
   let newcarrito;
-  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew] }] } };
+  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew],InfoV: [...infoNew],placa, clase, Tplaca,Propietario }] } };
   else {
     const vehiculosOld = currentCart.conceptos.vehiculos;
-    newcarrito = { ...currentCart, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew] }] } };
+    newcarrito = { ...currentCart, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew], InfoV: [...infoNew],placa, clase, Tplaca,Propietario }] } };
   }
   setStorage(newcarrito);
   return true;
@@ -272,10 +274,20 @@ function removeElementCart(id) {
 }
 
 function updateNumCart() {
-  const element = document.getElementById('countCart');
-  element.textContent = getNumConcepts();
+    const element = document.getElementById('countCart');
+    if(element != null){ 
+        element.textContent = getNumConcepts();
+    }
 }
 
+document.addEventListener("DOMContentLoaded", function(){
+    // Invocamos cada 5 segundos ;)
+    const milisegundos = .1 *1000;
+    setInterval(function(){
+        // No esperamos la respuesta de la petición porque no nos importa
+        updateNumCart()
+    },milisegundos);
+});
 
 /**
  * ========================================================================
@@ -291,14 +303,10 @@ function createViewCart() {
     for (const conceptVehiculo of concepto.conceptos) {
       if (conceptVehiculo.Concepto == "TENENCIA") {
         ejercicios += `${conceptVehiculo.Ejercicio},`;
-
-
-
-        
       }
       importetotal += conceptVehiculo.TotalPagar;
     }
-    main.appendChild(createRow(concepto.serie, 1, ejercicios, formatter.format(importetotal)));
+    main.appendChild(createRow(concepto.serie, 1, ejercicios, formatter.format(importetotal),concepto.Propietario,concepto.placa));
     totalfinal += importetotal;
   }
   document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
@@ -313,11 +321,11 @@ function createViewCart() {
  * @param {number} importe total del importe
  * @returns {HTMLDivElement}
  */
-const createRow = (id, cantidad = 1, ejercicios, importe) => {
+const createRow = (id, cantidad = 1, ejercicios, importe, propietario, placa) => {
   const rowPrincipal = document.createElement('div');
   rowPrincipal.className = 'row d-flex justify-content-center border-top';
   rowPrincipal.id = id;
-  const nombreConcepto = nameConcept("TenenciaParticular", ejercicios);
+  const nombreConcepto = nameConcept("TenenciaParticular", ejercicios, propietario, placa);
   const moreData = dataExtra(id, cantidad, importe);
   rowPrincipal.appendChild(nombreConcepto);
   rowPrincipal.appendChild(moreData);
@@ -329,7 +337,7 @@ const createRow = (id, cantidad = 1, ejercicios, importe) => {
  * @param {string} data2 dato extra del concepto
  * @returns {HTMLElement}
  */
-const nameConcept = (data1 = 'data1', data2 = 'data2') => {
+const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 'data4') => {
   const div = document.createElement('div');
   div.className = 'col-5';
 
@@ -341,18 +349,32 @@ const nameConcept = (data1 = 'data1', data2 = 'data2') => {
   const divContenedor = document.createElement('div');
   divContenedor.className = 'my-auto flex-column d-flex pad-left';
 
-  const h6 = document.createElement('h6');
+  let h6 = document.createElement('h6');
   h6.className = 'mob-text';
   h6.textContent = data1;
 
-  const p = document.createElement('p');
+  let p = document.createElement('p');
   p.className = 'mob-text';
   p.textContent = data2;
-
   divContenedor.appendChild(h6);
   divContenedor.appendChild(p);
-
   divRow.appendChild(divContenedor);
+  
+  const divNombre = document.createElement('div');
+  divNombre.className = 'ml-5 flex-column d-flex pad-left';
+
+  h6 = document.createElement('h6');
+  h6.className = 'mob-text prueba';
+  h6.textContent = data3;
+
+  p = document.createElement('p');
+  p.className = 'mob-text prueba';
+  p.textContent = data4;
+  
+  divNombre.appendChild(h6);
+  divNombre.appendChild(p);
+
+  divRow.appendChild(divNombre);
   div.appendChild(divRow);
 
   return div;
@@ -411,24 +433,104 @@ const dataExtra = (id, cantidad, importe = '0') => {
   return divPrincipal;
 }
 
-
-// window.addEventListener('storage',(e)=>{
-//   console.log('storage event =>', e);
-// },false);
-
-// window.onstorage = ()=>{
-//   console.log('evento storage')
-// }
-
-function dispararEvento() {
-  const myEvent = new CustomEvent('myEventPersonal', { "detail": 'Modificando cart' });
-  document.dispatchEvent(myEvent);
-}
-
-// my event handler
-document.addEventListener('myEventPersonal', e => {
-  console.log(e.detail);
-  updateNumCart();
+$("#GenerarPago").click(async function(){
+    document.getElementById('Progreso').hidden = false;
+    document.getElementById('Generar').hidden = true;
+    let respons = "";
+    const currentCart = getDataCart();
+    for(const concepto of currentCart.conceptos.vehiculos){
+        const serie = concepto.serie;
+        const placa = concepto.placa;
+        const Tplaca = concepto.Tplaca;
+        const clase = concepto.clase;
+        const conceptos = JSON.stringify(concepto.conceptos);
+        const infov = JSON.stringify(concepto.InfoV);
+         respons = await $.ajax({
+            type: "POST",
+            url: "HojaReferencia.php",
+            dataType: 'JSON',
+            data: {serie: serie, placa: placa, clase: clase, Tplaca: Tplaca, InformacionV: conceptos, InfoCV: infov}
+//            data: {Datos: currentCart}
+        }).done(function (respuesta){
+            window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref="+respuesta+"&cart=true");
+            document.getElementById('Progreso').hidden = true;
+            document.getElementById('Generar').hidden = false;
+            cleanCart();
+            window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
+        }).fail(function(jqXHR) {
+            alert("Internal Server Error " + jqXHR.status)
+            document.getElementById('Progreso').hidden = true;
+            document.getElementById('Generar').hidden = false;
+        });
+    }
+    console.log(respons);
 });
 
+/**
+ * 
+ * @param {diversos} object 
+ * @returns 
+ */
+ function addDiversos(object) {
+  let cart = getDataCart();
+  
+  if (!object.id) {
+    console.log('Falta el dato id');
+    return;
+  }
+  if (!cart.conceptos || !cart.conceptos.otros ) cart = {...cart, conceptos:{...cart.conceptos, otros:[object]}}
+  else cart.conceptos.otros.push(object);
+  
+  setStorage(cart);
+}
 
+function addObjeFree(id, object) {
+  const cart = getDataCart();
+  const index = cart.conceptos.otros.findIndex(e => e.id === id);
+  if (index == -1) {
+    console.log('No existe el idBuscado');
+    return;
+  }
+  
+  cart.conceptos.otros[index].objectFree.push(object);
+  setStorage(cart);
+}
+
+/**
+  ========================================================================
+  Enrique functions
+**/
+
+function buscaLocalStorage(parOpcion, parValor){
+
+  if (typeof parValor !== 'string') return;
+  const cart = getDataCart();
+
+  let vehiculo=false;
+
+  // ver para cunado este vacio otros
+  if( !cart.hasOwnProperty('conceptos') ) return false; 
+  if( !cart.conceptos.hasOwnProperty('otros') ) return false;
+  
+  let ultimo = cart.conceptos.otros.length-1;
+  
+  switch(parOpcion){
+      case "Placa":
+          for(i=ultimo; i>-1; i--){
+              if(!cart.conceptos.otros[i].objectFree.hasOwnProperty('PlacaActualVehiculo') ) continue;
+              if(cart.conceptos.otros[i].objectFree.PlacaActualVehiculo  === parValor) {
+                  return cart.conceptos.otros[i].objectFree;
+              }
+          }
+          break;
+      case "NoDeSerie":
+          for(i=ultimo; i>-1; i--){
+            if(!cart.conceptos.otros[i].objectFree.hasOwnProperty('NumeroSerieVehiculo') ) continue;
+              if(cart.conceptos.otros[i].objectFree.NumeroSerieVehiculo  === parValor) {
+                  return cart.conceptos.otros[i].objectFree;
+              }
+          }
+          break;
+  }   
+return vehiculo;
+}
