@@ -9,8 +9,172 @@
     integrity="sha384-1BmE4kWBq78iYhFldvKuhfTAU6auU8tT94WrHftjDbrCEXSU1oBoqyl2QvZ6jIW3" crossorigin="anonymous">
   <title>Example Storage</title>
 </head>
+<style>
+  body {
+    color: #000;
+    overflow-x: hidden;
+    height: 100%;
+    background-color: #fff;
+    background-repeat: no-repeat
+  }
 
-<body>
+  .plus-minus {
+    position: relative
+  }
+
+  .plus {
+    position: absolute;
+    top: -4px;
+    left: 2px;
+    cursor: pointer
+  }
+
+  .minus {
+    position: absolute;
+    top: 8px;
+    left: 5px;
+    cursor: pointer
+  }
+
+  .vsm-text:hover {
+    color: #FF5252
+  }
+
+  .book,
+  .book-img {
+    width: 120px;
+    height: 180px;
+    border-radius: 5px
+  }
+
+  .book {
+    margin: 20px 15px 5px 15px
+  }
+
+  .border-top {
+    border-top: 1px solid #EEEEEE !important;
+    margin-top: 20px;
+    padding-top: 15px
+  }
+
+  .card {
+    margin: 40px 0px;
+    padding: 40px 50px;
+    border-radius: 20px;
+    border: none;
+    box-shadow: 1px 5px 10px 1px rgba(0, 0, 0, 0.2)
+  }
+
+  input,
+  textarea {
+    background-color: #F3E5F5;
+    padding: 8px 15px 8px 15px;
+    width: 100%;
+    border-radius: 5px !important;
+    box-sizing: border-box;
+    border: 1px solid #F3E5F5;
+    font-size: 15px !important;
+    color: #000 !important;
+    font-weight: 300
+  }
+
+  input:focus,
+  textarea:focus {
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    border: 1px solid #9FA8DA;
+    outline-width: 0;
+    font-weight: 400
+  }
+
+  button:focus {
+    -moz-box-shadow: none !important;
+    -webkit-box-shadow: none !important;
+    box-shadow: none !important;
+    outline-width: 0
+  }
+
+  .pay {
+    width: 80px;
+    height: 40px;
+    border-radius: 5px;
+    border: 1px solid #673AB7;
+    margin: 10px 20px 10px 0px;
+    cursor: pointer;
+    box-shadow: 1px 5px 10px 1px rgba(0, 0, 0, 0.2)
+  }
+
+  .gray {
+    -webkit-filter: grayscale(100%);
+    -moz-filter: grayscale(100%);
+    -o-filter: grayscale(100%);
+    -ms-filter: grayscale(100%);
+    filter: grayscale(100%);
+    color: #E0E0E0
+  }
+
+  .gray .pay {
+    box-shadow: none
+  }
+
+  #tax {
+    border-top: 1px lightgray solid;
+    margin-top: 10px;
+    padding-top: 10px
+  }
+
+  .btn-blue {
+    border: none;
+    border-radius: 10px;
+    background-color: #673AB7;
+    color: #fff !important;
+    padding: 8px 15px;
+    margin: 20px 0px;
+    cursor: pointer
+  }
+
+  .btn-blue:hover {
+    background-color: #311B92;
+    color: #fff
+  }
+
+  #checkout {
+    float: left
+  }
+
+  #check-amt {
+    float: right
+  }
+
+  .prueba {
+    font-size: 11px;
+  }
+
+  @media screen and (max-width: 768px) {
+
+    .book,
+    .book-img {
+      width: 100px;
+      height: 150px
+    }
+
+    .card {
+      padding-left: 15px;
+      padding-right: 15px
+    }
+
+    .mob-text {
+      font-size: 13px
+    }
+
+    .pad-left {
+      padding-left: 20px
+    }
+  }
+</style>
+
+<body id="page-top">
   <nav class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
     <!-- Sidebar Toggle (Topbar) -->
     <button id="sidebarToggleTop" class="btn btn-link d-md-none rounded-circle mr-3">
@@ -52,28 +216,429 @@
       </li>
     </ul>
   </nav>
-  <div id='main' class="container">
+  <div id="content-wrapper" class="d-flex flex-column">
+
+    <!-- Main Content -->
+    <div id="content">
+
+      <!-- Topbar -->
+      <?php include 'TopBar_1.php'; ?>
+      <!-- End of Topbar -->
+
+      <!-- Begin Page Content -->
+      <div class="container-fluid">
+        <div class="container px-4 py-5 mx-auto border rounded">
+          <div class="row d-flex justify-content-center">
+            <div class="col-5">
+              <h4 class="heading">Concepto</h4>
+            </div>
+            <div class="col-7">
+              <div class="row text-right">
+                <div class="col-4">
+                  <h6 class="mt-2">Cantidad</h6>
+                </div>
+                <div class="col-4">
+                  <h6 class="mt-2">Precio</h6>
+                </div>
+                <div class="col-4">
+                  <h6 class="mt-2"> </h6>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="main">
+
+          </div>
+          <div class="row justify-content-center">
+            <div class="col-lg-12">
+              <div class="card">
+                <div class="row justify-content-end">
+                  <div class="col-4 mt-2">
+                    <div class="row d-flex justify-content-between px-4" id="tax">
+                      <p class="mb-1 text-left">Total</p>
+                      <h6 id="TotalFinal" class="mb-1 text-right"></h6>
+                    </div>
+                    <a class="btn btn-block btn-blue" id="GenerarPago">
+                      <div id="Generar">
+                        Generar Hoja de Pago
+                      </div>
+                      <div class="spinner-border" role="status" hidden id="Progreso">
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- /.container-fluid -->
+    </div>
+    <!-- End of Main Content -->
+  </div>
+  <!-- End of Content Wrapper -->
   </div>
 
   <h6 id="TotalFinal" class="mb-1 text-right"></h6>
-<button onclick="dispararEvento()">agregar cart</button>
+  <button onclick="dispararEvento()">agregar cart</button>
 </body>
 <script src="./control-localStorage.js" />
 </script>
 <script>
-//   window.addEventListener('storage',()=>{
-//   console.log('storage event =>');
-// });
+  //   window.addEventListener('storage',()=>{
+  //   console.log('storage event =>');
+  // });
   // deleteConceptVehiculo('0123TEST');
-  // createViewCart();
+  createViewCart();
   // getLastYearVehiculo('0123TEST');
   // addDiversos({id:'testDiverso3', vista:{titulo:'My title', descripcion:'my description', importeTotal:2368}});
   // const data = {item1:'richard', item2:'item2', item3:'item3'};
+  // findSeriePublic('serie1');
+  // localStorage.setItem('carrito', JSON.stringify({
+
   // localStorage.setItem('carrito', JSON.stringify({
   //   "IdCaja": "2",
   //   "UsuCajero": "UPRUEBAS",
   //   "IdOficina": "2800",
   //   "conceptos": {
+  //     "otros": [
+  //       {
+  //         "id": "Tenencia_2021122721307",
+  //         "serie": "serie1",
+  //         "vista": {
+  //           "titulo": "Tenencia Publico",
+  //           "descripcion": "Tenencia: ${ejercicioActual} ${ejerciciosAnteriores}",
+  //           "importeTotal": 318
+  //         },
+  //         "cuentas": [
+  //           {
+  //             "cuenta": 13711,
+  //             "cantidad": 1,
+  //             "importe": 1500,
+  //             "ejercicio": "2021"
+  //           },
+  //           {
+  //             "cuenta": "25336",
+  //             "cantidad": 1,
+  //             "importe": 198,
+  //             "ejercicio": "2021"
+  //           },
+  //           {
+  //             "cuenta": "12700",
+  //             "cantidad": 1,
+  //             "importe": 30,
+  //             "ejercicio": "2021"
+  //           },
+  //           {
+  //             "cuenta": "12800",
+  //             "cantidad": 1,
+  //             "importe": 30,
+  //             "ejercicio": "2021"
+  //           },
+  //           {
+  //             "cuenta": "12900",
+  //             "cantidad": 1,
+  //             "importe": 30,
+  //             "ejercicio": "2021"
+  //           },
+  //           {
+  //             "cuenta": "13000",
+  //             "cantidad": 1,
+  //             "importe": 30,
+  //             "ejercicio": "2021"
+  //           },
+  //           {
+  //             "cuenta": 99597,
+  //             "cantidad": 1,
+  //             "importe": -1500,
+  //             "ejercicio": "2021"
+  //           }
+  //         ],
+  //         "objectFree": {
+  //           "0": {
+  //             "Descripcion": "NISSAN MEXICANA, S.A. DE C.V. NV350 URVAN PANEL 4 VENTANA AMPLIA T/M",
+  //             "CveTipoMarca": "1",
+  //             "CveMarcaVehiculo": "4",
+  //             "CveLineaVehiculo": "18",
+  //             "CveSubLineaVehiculo": "13",
+  //             "ClaveVehicular": "1- 4- 18 -13",
+  //             "NoPasajerosSublineaVehiculo": "5",
+  //             "CapacidadCargaSublineaVehiculo": "0"
+  //           },
+  //           "1": {
+  //             "0": [
+  //               {
+  //                 "CveFteMT": "GUERRERO",
+  //                 "CvePersona": "1520124683",
+  //                 "CveEstablecimientoContrib": "1",
+  //                 "TipoEstablecimientoContrib": "F",
+  //                 "CalleEstablecimientoContrib": "ALVAREZ",
+  //                 "NumExtEstablecimientoContrib": "20",
+  //                 "NumIntEstablecimientoContrib": "S/N",
+  //                 "CodigoPostalEstablecimientoCon": "39000",
+  //                 "NombreColoniaEstablecimientoCo": "CENTRO",
+  //                 "CveLocalidadEstablecimientoCon": null,
+  //                 "NombreLocalidadEstablecimiento": "CHILPO",
+  //                 "CveMunicipioEstablecimientoCon": "29",
+  //                 "NombreMunicipioEstablecimiento": "Chilpancingo de los Bravo",
+  //                 "CveEstadoEstablecimientoContri": null,
+  //                 "NombreEstadoEstablecimientoCon": null,
+  //                 "ActividadEstablecimientoContri": null,
+  //                 "OficinaEstablecimientoContrib": null,
+  //                 "ContEstablecimientoLocalidad": null,
+  //                 "ContEstablecimientoNombreMunic": "Chilpancingo de los Bravo",
+  //                 "ContEstablecimientoNombreEntFe": "12",
+  //                 "TelefonoEstablecimientoContrib": "",
+  //                 "ContEstablecimientoPais": null,
+  //                 "ContEstablecimientoPaisNombre": null,
+  //                 "ContEstablecimientoRegion": null,
+  //                 "ContEstablecimientoRegionNombr": null,
+  //                 "ContEstablecimientoDistrito": null,
+  //                 "ContEstablecimientoDistritoNom": null,
+  //                 "ContEstablecimientoNombreLocal": "CHILPO",
+  //                 "ContEstablecimientoMunicipioID": "029",
+  //                 "ContEstablecimientoEntidadFede": null,
+  //                 "ContEstablecimientoTelMovil": "",
+  //                 "ContEstablecimientoTelCasa": "",
+  //                 "CodigoPostalID": "39000",
+  //                 "CodigoPostalEntidadID": "12",
+  //                 "CodigoPostalMunicipioID": "29",
+  //                 "EntidadID": "12",
+  //                 "MunicipioID": "29",
+  //                 "MunicipioNombre": "CHILPANCINGO DE LOS BRAVO",
+  //                 "MunicipioOficinaID": "601",
+  //                 "Direccion": "ALVAREZ 20 39000 CENTRO"
+  //               },
+  //               {
+  //                 "CveFteMT": "GUERRERO",
+  //                 "CvePersona": "1520124683",
+  //                 "CveEstablecimientoContrib": "2",
+  //                 "TipoEstablecimientoContrib": "F",
+  //                 "CalleEstablecimientoContrib": "PRIVADA",
+  //                 "NumExtEstablecimientoContrib": "1",
+  //                 "NumIntEstablecimientoContrib": "",
+  //                 "CodigoPostalEstablecimientoCon": "40000",
+  //                 "NombreColoniaEstablecimientoCo": "DIAMANTE",
+  //                 "CveLocalidadEstablecimientoCon": null,
+  //                 "NombreLocalidadEstablecimiento": "ACAPULCO DE JUáREZ",
+  //                 "CveMunicipioEstablecimientoCon": "1",
+  //                 "NombreMunicipioEstablecimiento": "001",
+  //                 "CveEstadoEstablecimientoContri": null,
+  //                 "NombreEstadoEstablecimientoCon": null,
+  //                 "ActividadEstablecimientoContri": null,
+  //                 "OficinaEstablecimientoContrib": null,
+  //                 "ContEstablecimientoLocalidad": null,
+  //                 "ContEstablecimientoNombreMunic": "ACAPULCO DE JUáREZ",
+  //                 "ContEstablecimientoNombreEntFe": "12",
+  //                 "TelefonoEstablecimientoContrib": "",
+  //                 "ContEstablecimientoPais": null,
+  //                 "ContEstablecimientoPaisNombre": null,
+  //                 "ContEstablecimientoRegion": null,
+  //                 "ContEstablecimientoRegionNombr": null,
+  //                 "ContEstablecimientoDistrito": null,
+  //                 "ContEstablecimientoDistritoNom": null,
+  //                 "ContEstablecimientoNombreLocal": "ACAPULCO DE JUáREZ",
+  //                 "ContEstablecimientoMunicipioID": "001",
+  //                 "ContEstablecimientoEntidadFede": null,
+  //                 "ContEstablecimientoTelMovil": "",
+  //                 "ContEstablecimientoTelCasa": "",
+  //                 "CodigoPostalID": "40000",
+  //                 "CodigoPostalEntidadID": "12",
+  //                 "CodigoPostalMunicipioID": "35",
+  //                 "EntidadID": "12",
+  //                 "MunicipioID": "35",
+  //                 "MunicipioNombre": "IGUALA DE LA INDEPENDENCIA",
+  //                 "MunicipioOficinaID": "901",
+  //                 "Direccion": "PRIVADA 1 40000 DIAMANTE"
+  //               }
+  //             ],
+  //             "CveFteMT": null,
+  //             "CvePersona": "1520124683",
+  //             "TipoPersona": "F",
+  //             "RazonSocialPersona": "",
+  //             "NombrePersona": "ENRIQUE",
+  //             "RFCPersona": "RALE730719IC7",
+  //             "CURPPersona": "",
+  //             "FechaNacimientoPersona": "2020-08-19 16:56:05.000000",
+  //             "NombreCompletoPersona": null,
+  //             "NombreOrdenPersona": null,
+  //             "GeneroPersona": null,
+  //             "ReferenciaPersona01": null,
+  //             "ReferenciaPersona02": null,
+  //             "ReferenciaPersona03": null,
+  //             "NacionalidadPersona": null,
+  //             "LugarNacimientoPersona": null,
+  //             "EstadoCivilPersona": null,
+  //             "FechaFotoPersona": null,
+  //             "FechaAltaPersona": null,
+  //             "FechaMantenimientoPersona": null,
+  //             "UsuarioUltimaModPersona": null,
+  //             "CveAnteriorPersona": null,
+  //             "ApellidoMaternoPersona": "LUGOO",
+  //             "ApellidoPaternoPersona": "RAMOSS",
+  //             "DireccionPersona": null,
+  //             "PersonaCalle": null,
+  //             "PersonaNumExt": null,
+  //             "PersonaNumInt": null,
+  //             "PersonaCodigoPostal": null,
+  //             "CvePais": null,
+  //             "CveEntidadFederativa": null,
+  //             "CveRegion": null,
+  //             "CveDistrito": null,
+  //             "CveMunicipio": null,
+  //             "CveLocalidad": null,
+  //             "CveColonia": null,
+  //             "NombreColonia": null,
+  //             "PersonaTelefono": null,
+  //             "PersonaFax": null,
+  //             "PersonaCorreo": null,
+  //             "PersonasONLSiNo": null,
+  //             "CallePersona": null,
+  //             "NumeroExteriorPersona": null,
+  //             "NumeroInteriorPersona": null,
+  //             "ColoniaPersona": null,
+  //             "NombreMunicipioPersona": null,
+  //             "NombreEntidadFederativaPersona": null,
+  //             "PaisPersona": null,
+  //             "CodigoPostalPersona": null,
+  //             "TipoRFC": "FISICA"
+  //           },
+  //           "2": {
+  //             "CuentaPaquete": 25384,
+  //             "CobroAñoActual": "2021"
+  //           },
+  //           "CveFteMT": "GUERRERO",
+  //           "CveVehiculo": "802592",
+  //           "PlacaActualVehiculo": "1234FFC",
+  //           "CveTipoMarca": "1",
+  //           "CveMarcaVehiculo": "4",
+  //           "CveLineaVehiculo": "18",
+  //           "CveSubLineaVehiculo": "13",
+  //           "ModeloVehiculo": "1998",
+  //           "PropietarioActualVehiculo": 1520124683,
+  //           "CveClaseVehiculo": "2",
+  //           "CveTipoVehiculo": "5",
+  //           "CveTipoServicioVehiculo": "62",
+  //           "FechaFacturaVehiculo": "2015-01-01 00:00:00.000000",
+  //           "ValorEnFacturaVehiculo": "199000.0000",
+  //           "NumeroMotorVehiculo": "HECHO EN MEXICO",
+  //           "NumeroSerieVehiculo": "0123XXXPUB",
+  //           "NumeroFacturaVehiculo": "1",
+  //           "CveEmisionPlaca": "2009",
+  //           "OrigenVehiculo": "N",
+  //           "FechaDoctoRegVehiculo": "1753-01-01 00:00:00.000000",
+  //           "NumeroFolioRegistroVehiculo": "",
+  //           "VehiculoEjercicioUltimoPago": "2021",
+  //           "VehiculoFechaUltimoPago": "2021-01-07 00:00:00.000000",
+  //           "VehiculoImporteUltimoPago": "652.0000",
+  //           "VehiculoFechaCambioUso": "1753-01-01 00:00:00.000000",
+  //           "VehiculoNIV": "",
+  //           "VehiculoEstablecimiento": 2,
+  //           "VehiculoStatus": "",
+  //           "VehiculoFechaAlta": "2011-12-16 00:00:00.000000",
+  //           "VehiculoUsuarioAlta": "DNOGUEDA",
+  //           "VehiculoTieneFactura": "S",
+  //           "VehiculoDocCompruebaPropiedad": "",
+  //           "VehiculoVendidoPor": "",
+  //           "VehiculoRefacturado": "",
+  //           "VehiculoRazonSocialRefactura": "",
+  //           "VehiculoEsAutoAntiguo": "",
+  //           "VehiculoFechaVencePermiso": "1753-01-01 00:00:00.000000",
+  //           "VehiculosNumeroEconomico": "45",
+  //           "VehiculoFechaBaja": "1753-01-01 00:00:00.000000",
+  //           "VehiculoNumeroPasajeros": "4",
+  //           "VehiculoFechaModificacion": "2021-12-27 00:58:00.000000",
+  //           "VehiculoOficina": "601",
+  //           "ServicioVehiculoID": "17",
+  //           "VehiculoNRPV": null,
+  //           "VehiculoMotivoSuspendido": null,
+  //           "VehiculoObservacionesSuspendid": null,
+  //           "VehiculoMascaraPlacax": "9999!!!",
+  //           "VehiculoCodigoServicio2": "2",
+  //           "VehiculoCodigo": "0",
+  //           "VehiculoPatente": "0",
+  //           "VehiculoPedimento": "0",
+  //           "VehiculoAduana": "0",
+  //           "VehiculoValidadoServiciosVehic": null,
+  //           "VehiculoValidadoSV": "N",
+  //           "VehiculoOmisionSerie": "S",
+  //           "VehiculoUsuarioOmisionSerie": "SVERGARA",
+  //           "VehiculoPublicoPlacasParticula": "0",
+  //           "CveEspecial": null,
+  //           "VehiculoUsuarioModificacion": "UPRUEBAS",
+  //           "VehiculoNoSerieAnterior": "0123XXXPUB",
+  //           "RFC": "RALE730719IC7",
+  //           "TipoServicio": "PUBLICO",
+  //           "PlacaTipoServicio": "PUBLICO",
+  //           "Suspendido": false
+  //         }
+  //       },
+  //       {
+  //         "id": "10810_2021122723945",
+  //         "serie": "serie2",
+  //         "vista": {
+  //           "titulo": "Contribuciones",
+  //           "descripcion": "IMP S/REM AL TRAB. PERS. POR COMPENSACION cantidad 1",
+  //           "importeTotal": 360
+  //         },
+  //         "cuentas": [
+  //           {
+  //             "cuenta": "10810",
+  //             "cantidad": "1",
+  //             "importe": 360
+  //           }
+  //         ],
+  //         "objectFree": {
+  //           "txtPlaca": "1234FFC",
+  //           "txtNoDeSerie": "0123XXXPUB",
+  //           "txtRFC": "RALE730719IC7",
+  //           "txtNombreContribuyente": "ENRIQUE RAMOSS LUGOO",
+  //           "txtDireccionContribuyente": "PRIVADA 1 , C.P. 40000, Colonia DIAMANTE, Localidad ACAPULCO DE JUáREZ, Municipio ACAPULCO DE JUáREZ",
+  //           "txtConceptoCobro": "Placa: 1234FFC, Número de serie: 0123XXXPUB , Modelo: 1998, Clave Vehicular: 1- 4- 18 -13 NISSAN MEXICANA, S.A. DE C.V. NV350 URVAN PANEL 4 VENTANA AMPLIA T/M",
+  //           "txtPeriodo": "2021/12"
+  //         }
+  //       },
+  //       {
+  //         "id": "12003_2021122723946",
+  //         "serie": "serie3",
+  //         "vista": {
+  //           "titulo": "Contribuciones",
+  //           "descripcion": "AUTOCORRECCION PROF MEDICA POR FISCALIZ                                          cantidad 1",
+  //           "importeTotal": 986
+  //         },
+  //         "cuentas": [
+  //           {
+  //             "cuenta": "12003",
+  //             "cantidad": "1",
+  //             "importe": 680
+  //           },
+  //           {
+  //             "cuenta": "12700",
+  //             "cantidad": "1",
+  //             "importe": 102
+  //           },
+  //           {
+  //             "cuenta": "12900",
+  //             "cantidad": "1",
+  //             "importe": 102
+  //           },
+  //           {
+  //             "cuenta": "13000",
+  //             "cantidad": "1",
+  //             "importe": 102
+  //           }
+  //         ],
+  //         "objectFree": {
+  //           "txtPlaca": "1234FFC",
+  //           "txtNoDeSerie": "0123XXXPUB",
+  //           "txtRFC": "RALE730719IC7",
+  //           "txtNombreContribuyente": "ENRIQUE RAMOSS LUGOO",
+  //           "txtDireccionContribuyente": "PRIVADA 1 , C.P. 40000, Colonia DIAMANTE, Localidad ACAPULCO DE JUáREZ, Municipio ACAPULCO DE JUáREZ",
+  //           "txtConceptoCobro": "Placa: 1234FFC, Número de serie: 0123XXXPUB , Modelo: 1998, Clave Vehicular: 1- 4- 18 -13 NISSAN MEXICANA, S.A. DE C.V. NV350 URVAN PANEL 4 VENTANA AMPLIA T/M",
+  //           "txtPeriodo": "2021/12"
+  //         }
+  //       }
+  //     ],
   //     "vehiculos": [
   //       {
   //         "serie": "0123TEST",
@@ -381,7 +946,7 @@
   //       {
   //         "serie": "sinTenencia",
   //         "conceptos": [
-            
+
   //           {
   //             "Concepto": "REFRENDO",
   //             "CveDerecho": 120,

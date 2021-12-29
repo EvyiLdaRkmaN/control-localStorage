@@ -21,6 +21,7 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * 
  * @typedef {object} diversos
  * @property {string} id
+ * @property {string} serie
  * @property {object} vista
  * @property {string} vista.titulo
  * @property {string} vista.descripcion
@@ -224,7 +225,7 @@ function addDiversos(object) {
     console.log('Falta el dato id');
     return;
   }
-  if (!cart.conceptos.otros) cart = {...cart, conceptos:{...cart.conceptos, otros:[object]}}
+  if (!cart.conceptos || !cart.conceptos.otros ) cart = {...cart, conceptos:{...cart.conceptos, otros:[object]}}
   else cart.conceptos.otros.push(object);
   
   setStorage(cart);
@@ -240,6 +241,24 @@ function addObjeFree(id, object) {
   
   cart.conceptos.otros[index].objectFree.push(object);
   setStorage(cart);
+}
+
+/**
+ * busca si una serie pertenece a publico
+ * basado en las cuentas [13600, 13750, 13711]
+ * y si es correspondiente al año en curso
+ * @param {string} serie 
+ * @returns {boolean}
+ */
+function findSeriePublic(serie) {
+  const cuentas = [13600, 13750, 13711];
+  const cart = getDataCart();
+  if (!cart.conceptos || !cart.conceptos.otros) {
+    console.log('No hay elementos donde buscar');
+    return false;
+  }
+  // TODO: validar si pertenece al año actual
+  return cart.conceptos.otros.find((v)=> v.serie === serie ).cuentas.some(c => cuentas.includes(c.cuenta));
 }
 
 function cleanCart() {
@@ -280,14 +299,14 @@ function updateNumCart() {
     }
 }
 
-document.addEventListener("DOMContentLoaded", function(){
-    // Invocamos cada 5 segundos ;)
-    const milisegundos = .1 *1000;
-    setInterval(function(){
-        // No esperamos la respuesta de la petición porque no nos importa
-        updateNumCart()
-    },milisegundos);
-});
+// document.addEventListener("DOMContentLoaded", function(){
+//     // Invocamos cada 5 segundos ;)
+//     const milisegundos = .1 *1000;
+//     setInterval(function(){
+//         // No esperamos la respuesta de la petición porque no nos importa
+//         updateNumCart()
+//     },milisegundos);
+// });
 
 /**
  * ========================================================================
@@ -438,6 +457,18 @@ $("#GenerarPago").click(async function(){
     document.getElementById('Generar').hidden = true;
     let respons = "";
     const currentCart = getDataCart();
+    // caso de que existan datos Eduardo y Kike
+    // paso 1 enviar datos de Enrique -> referencia
+    // paso 2 enviar datos Eduardo con referencia
+    // paso 3 unir datos eduardo con referenciaKIKE
+    
+    // Caso solo datos Eduardo
+    // Genera referencia y listo
+
+    // Caso kike
+    // Genera su referencia propia.
+
+
     for(const concepto of currentCart.conceptos.vehiculos){
         const serie = concepto.serie;
         const placa = concepto.placa;
@@ -466,35 +497,6 @@ $("#GenerarPago").click(async function(){
     console.log(respons);
 });
 
-/**
- * 
- * @param {diversos} object 
- * @returns 
- */
- function addDiversos(object) {
-  let cart = getDataCart();
-  
-  if (!object.id) {
-    console.log('Falta el dato id');
-    return;
-  }
-  if (!cart.conceptos || !cart.conceptos.otros ) cart = {...cart, conceptos:{...cart.conceptos, otros:[object]}}
-  else cart.conceptos.otros.push(object);
-  
-  setStorage(cart);
-}
-
-function addObjeFree(id, object) {
-  const cart = getDataCart();
-  const index = cart.conceptos.otros.findIndex(e => e.id === id);
-  if (index == -1) {
-    console.log('No existe el idBuscado');
-    return;
-  }
-  
-  cart.conceptos.otros[index].objectFree.push(object);
-  setStorage(cart);
-}
 
 /**
   ========================================================================
