@@ -86,6 +86,7 @@ const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart
  * @returns {string|boolean}
  */
 function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) { //TODO: Revisar el uso de variable infoNew, por que parece no ser usada
+  console.log('agregando vehiculo')
   let conceptNew;
   let infoNew;
   if (Array.isArray(concepts)) conceptNew = concepts;
@@ -103,9 +104,24 @@ function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) {
   */
   let newcarrito;
   if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }] } };
+
   else {
     const vehiculosOld = currentCart.conceptos.vehiculos;
-    newcarrito = { ...currentCart, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }] } };
+    const index = currentCart.conceptos.vehiculos.findIndex(v => v.serie === serie);
+    console.log('intentando agregar cuando existe', index)
+
+    if (index != -1) {
+      console.log('existe la serie en vehiculo')
+      currentCart.conceptos.vehiculos.splice( index,1,{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario });
+      newcarrito = currentCart;
+    }
+    else {
+      currentCart.conceptos.vehiculos.push({ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario });
+      newcarrito = currentCart;
+      // newcarrito = { ...currentCart, conceptos: { ...currentCart.conceptos, vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }], } };
+      // console.log('entra en else= ', newcarrito);
+    }
+    console.log('carricuto nuevo', newcarrito);
   }
   setStorage(newcarrito);
   return true;
@@ -170,7 +186,14 @@ function getNumConcepts() {
   if (!cart.conceptos) {
     return 0;
   }
-  return cart.conceptos.vehiculos.length
+  let suma = 0;
+  if (cart.conceptos.vehiculos) {
+    suma += cart.conceptos.vehiculos.length;
+  }
+  if (cart.conceptos.otros) {
+    suma += cart.conceptos.otros.length;
+  }
+  return suma;
 }
 
 /**
@@ -203,15 +226,30 @@ function deleteItem(item) {
 
 function deleteConceptVehiculo(serie) {
   const cart = getDataCart();
-  const index = cart.conceptos.vehiculos.findIndex(e => e.serie === serie);
-  console.log('existe = ', index);
-  if (index == -1) {
-    console.log('La serie no existe en el carrito');
+
+  // buscando el elemento dentro de conecptos
+  let index = -1;
+  let indexOtros = -1;
+  if (cart.conceptos.vehiculos) {
+    index = cart.conceptos.vehiculos.findIndex(e => e.serie === serie);
+    if (index != -1) {
+      cart.conceptos.vehiculos.splice(index, 1);
+    }
+  }
+  if (cart.conceptos.otros) {
+    indexOtros = cart.conceptos.otros.findIndex(e => e.id === serie);
+    if (indexOtros != -1) {
+      cart.conceptos.otros.splice(indexOtros, 1);
+    }
+  }
+
+  if (index == -1 && indexOtros == -1) {
+    console.log('Elemento no existe en el carrito');
     return;
   }
-  cart.conceptos.vehiculos.splice(index, 1);
   setStorage(cart);
   console.log('Elementos eliminados');
+  return cart;
 }
 /**
  * 
@@ -276,15 +314,22 @@ function deleteConcept(id) {
  * @param {string} id elemento a eliminar
  */
 function removeElementCart(id) {
-  deleteConceptVehiculo(id);
+  const { conceptos: { vehiculos, otros } } = deleteConceptVehiculo(id);
   document.getElementById('main').removeChild(document.getElementById(id));
-  const { conceptos: { vehiculos } } = getDataCart();
+  // const { conceptos: { vehiculos } } = getDataCart();
 
   // Calculando el nuevo total
   let importetotal = 0;
-  for (const { conceptos } of vehiculos) {
-    for (const { TotalPagar } of conceptos) {
-      importetotal += TotalPagar;
+  if (vehiculos) {
+    for (const { conceptos } of vehiculos) {
+      for (const { TotalPagar } of conceptos) {
+        importetotal += TotalPagar;
+      }
+    }
+  }
+  if(otros){
+    for (const { vista } of otros) {
+      importetotal += vista.importeTotal;
     }
   }
 
@@ -299,14 +344,14 @@ function updateNumCart() {
   }
 }
 
-// document.addEventListener("DOMContentLoaded", function(){
-//     // Invocamos cada 5 segundos ;)
-//     const milisegundos = .1 *1000;
-//     setInterval(function(){
-//         // No esperamos la respuesta de la petición porque no nos importa
-//         updateNumCart()
-//     },milisegundos);
-// });
+document.addEventListener("DOMContentLoaded", function () {
+  // Invocamos cada 5 segundos ;)
+  const milisegundos = .1 * 1000;
+  setInterval(function () {
+    // No esperamos la respuesta de la petición porque no nos importa
+    updateNumCart()
+  }, milisegundos);
+});
 
 /**
  * ========================================================================
@@ -318,22 +363,25 @@ function createViewCart() {
   const { conceptos: { vehiculos, otros } } = getDataCart();
 
   let totalfinal = 0;
-
-  for (const concepto of vehiculos) {
-    let importetotal = 0;
-    let ejercicios = "";
-    for (const conceptVehiculo of concepto.conceptos) {
-      if (conceptVehiculo.Concepto == "TENENCIA") {
-        ejercicios += `${conceptVehiculo.Ejercicio},`;
+  if (vehiculos) {
+    for (const concepto of vehiculos) {
+      let importetotal = 0;
+      let ejercicios = "";
+      for (const conceptVehiculo of concepto.conceptos) {
+        if (conceptVehiculo.Concepto == "TENENCIA") {
+          ejercicios += `${conceptVehiculo.Ejercicio},`;
+        }
+        importetotal += conceptVehiculo.TotalPagar;
       }
-      importetotal += conceptVehiculo.TotalPagar;
+      main.appendChild(createRow(concepto.serie, "TenenciaParticular", ejercicios, concepto.Propietario, "Serie:" + concepto.serie + ";Placa:" + concepto.placa, 1, formatter.format(importetotal)));
+      totalfinal += importetotal;
     }
-    main.appendChild(createRow(concepto.serie, "TenenciaParticular", ejercicios, concepto.Propietario, concepto.placa, 1, formatter.format(importetotal)));
-    totalfinal += importetotal;
   }
-  for (const { id, vista } of otros) {
-    main.appendChild(createRow(id, vista.titulo, vista.descripcion, '', '', 1, vista.importeTotal));
-    totalfinal+=vista.importeTotal;
+  if (otros) {
+    for (const { id, vista } of otros) {
+      main.appendChild(createRow(id, vista.titulo, vista.descripcion, '', '', 1, formatter.format(vista.importeTotal)));
+      totalfinal += vista.importeTotal;
+    }
   }
   document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
 }
@@ -465,50 +513,50 @@ const extraData = (id, cantidad, importe = '0') => {
   return divPrincipal;
 }
 
-$("#GenerarPago").click(async function () {
-  document.getElementById('Progreso').hidden = false;
-  document.getElementById('Generar').hidden = true;
-  let respons = "";
-  const currentCart = getDataCart();
-  // caso de que existan datos Eduardo y Kike
-  // paso 1 enviar datos de Enrique -> referencia
-  // paso 2 enviar datos Eduardo con referencia
-  // paso 3 unir datos eduardo con referenciaKIKE
+// $("#GenerarPago").click(async function () {
+//   document.getElementById('Progreso').hidden = false;
+//   document.getElementById('Generar').hidden = true;
+//   let respons = "";
+//   const currentCart = getDataCart();
+//   // caso de que existan datos Eduardo y Kike
+//   // paso 1 enviar datos de Enrique -> referencia
+//   // paso 2 enviar datos Eduardo con referencia
+//   // paso 3 unir datos eduardo con referenciaKIKE
 
-  // Caso solo datos Eduardo
-  // Genera referencia y listo
+//   // Caso solo datos Eduardo
+//   // Genera referencia y listo
 
-  // Caso kike
-  // Genera su referencia propia.
+//   // Caso kike
+//   // Genera su referencia propia.
 
 
-  for (const concepto of currentCart.conceptos.vehiculos) {
-    const serie = concepto.serie;
-    const placa = concepto.placa;
-    const Tplaca = concepto.Tplaca;
-    const clase = concepto.clase;
-    const conceptos = JSON.stringify(concepto.conceptos);
-    const infov = JSON.stringify(concepto.InfoV);
-    respons = await $.ajax({
-      type: "POST",
-      url: "HojaReferencia.php",
-      dataType: 'JSON',
-      data: { serie: serie, placa: placa, clase: clase, Tplaca: Tplaca, InformacionV: conceptos, InfoCV: infov }
-      //            data: {Datos: currentCart}
-    }).done(function (respuesta) {
-      window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref=" + respuesta + "&cart=true");
-      document.getElementById('Progreso').hidden = true;
-      document.getElementById('Generar').hidden = false;
-      cleanCart();
-      window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
-    }).fail(function (jqXHR) {
-      alert("Internal Server Error " + jqXHR.status)
-      document.getElementById('Progreso').hidden = true;
-      document.getElementById('Generar').hidden = false;
-    });
-  }
-  console.log(respons);
-});
+//   for (const concepto of currentCart.conceptos.vehiculos) {
+//     const serie = concepto.serie;
+//     const placa = concepto.placa;
+//     const Tplaca = concepto.Tplaca;
+//     const clase = concepto.clase;
+//     const conceptos = JSON.stringify(concepto.conceptos);
+//     const infov = JSON.stringify(concepto.InfoV);
+//     respons = await $.ajax({
+//       type: "POST",
+//       url: "HojaReferencia.php",
+//       dataType: 'JSON',
+//       data: { serie: serie, placa: placa, clase: clase, Tplaca: Tplaca, InformacionV: conceptos, InfoCV: infov }
+//       //            data: {Datos: currentCart}
+//     }).done(function (respuesta) {
+//       window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref=" + respuesta + "&cart=true");
+//       document.getElementById('Progreso').hidden = true;
+//       document.getElementById('Generar').hidden = false;
+//       cleanCart();
+//       window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
+//     }).fail(function (jqXHR) {
+//       alert("Internal Server Error " + jqXHR.status)
+//       document.getElementById('Progreso').hidden = true;
+//       document.getElementById('Generar').hidden = false;
+//     });
+//   }
+//   console.log(respons);
+// });
 
 
 /**
