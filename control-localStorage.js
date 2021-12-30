@@ -85,13 +85,13 @@ const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart
  * @param {object[]} concepts 
  * @returns {string|boolean}
  */
-function addVehiculo(serie, concepts, info, placa, clase, Tplaca,Propietario) { //TODO: Revisar el uso de variable infoNew, por que parece no ser usada
+function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) { //TODO: Revisar el uso de variable infoNew, por que parece no ser usada
   let conceptNew;
   let infoNew;
   if (Array.isArray(concepts)) conceptNew = concepts;
   else if (typeof concepts === "object") conceptNew = [concepts];
   else return 'error el concepto no es objecto ni array';
-  
+
   if (Array.isArray(info)) infoNew = info;
   else if (typeof info === "object") infoNew = [info];
   else return 'error el concepto no es objecto ni array';
@@ -102,10 +102,10 @@ function addVehiculo(serie, concepts, info, placa, clase, Tplaca,Propietario) { 
       * @type {cart}
   */
   let newcarrito;
-  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew],InfoV: [...infoNew],placa, clase, Tplaca,Propietario }] } };
+  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }] } };
   else {
     const vehiculosOld = currentCart.conceptos.vehiculos;
-    newcarrito = { ...currentCart, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew], InfoV: [...infoNew],placa, clase, Tplaca,Propietario }] } };
+    newcarrito = { ...currentCart, conceptos: { vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }] } };
   }
   setStorage(newcarrito);
   return true;
@@ -220,14 +220,14 @@ function deleteConceptVehiculo(serie) {
  */
 function addDiversos(object) {
   let cart = getDataCart();
-  
+
   if (!object.id) {
     console.log('Falta el dato id');
     return;
   }
-  if (!cart.conceptos || !cart.conceptos.otros ) cart = {...cart, conceptos:{...cart.conceptos, otros:[object]}}
+  if (!cart.conceptos || !cart.conceptos.otros) cart = { ...cart, conceptos: { ...cart.conceptos, otros: [object] } }
   else cart.conceptos.otros.push(object);
-  
+
   setStorage(cart);
 }
 
@@ -238,7 +238,7 @@ function addObjeFree(id, object) {
     console.log('No existe el idBuscado');
     return;
   }
-  
+
   cart.conceptos.otros[index].objectFree.push(object);
   setStorage(cart);
 }
@@ -258,7 +258,7 @@ function findSeriePublic(serie) {
     return false;
   }
   // TODO: validar si pertenece al año actual
-  return cart.conceptos.otros.find((v)=> v.serie === serie ).cuentas.some(c => cuentas.includes(c.cuenta));
+  return cart.conceptos.otros.find((v) => v.serie === serie).cuentas.some(c => cuentas.includes(c.cuenta));
 }
 
 function cleanCart() {
@@ -293,10 +293,10 @@ function removeElementCart(id) {
 }
 
 function updateNumCart() {
-    const element = document.getElementById('countCart');
-    if(element != null){ 
-        element.textContent = getNumConcepts();
-    }
+  const element = document.getElementById('countCart');
+  if (element != null) {
+    element.textContent = getNumConcepts();
+  }
 }
 
 // document.addEventListener("DOMContentLoaded", function(){
@@ -313,10 +313,13 @@ function updateNumCart() {
  */
 
 function createViewCart() {
+
   const main = document.getElementById('main');
-  const currentCart = getDataCart();
+  const { conceptos: { vehiculos, otros } } = getDataCart();
+
   let totalfinal = 0;
-  for (const concepto of currentCart.conceptos.vehiculos) {
+
+  for (const concepto of vehiculos) {
     let importetotal = 0;
     let ejercicios = "";
     for (const conceptVehiculo of concepto.conceptos) {
@@ -325,8 +328,12 @@ function createViewCart() {
       }
       importetotal += conceptVehiculo.TotalPagar;
     }
-    main.appendChild(createRow(concepto.serie, 1, ejercicios, formatter.format(importetotal),concepto.Propietario,concepto.placa));
+    main.appendChild(createRow(concepto.serie, "TenenciaParticular", ejercicios, concepto.Propietario, concepto.placa, 1, formatter.format(importetotal)));
     totalfinal += importetotal;
+  }
+  for (const { id, vista } of otros) {
+    main.appendChild(createRow(id, vista.titulo, vista.descripcion, '', '', 1, vista.importeTotal));
+    totalfinal+=vista.importeTotal;
   }
   document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
 }
@@ -336,16 +343,22 @@ function createViewCart() {
  * esta adaptado para vehiculos con su serie
  * @param {string} id identificador de la fila (actualmente serie vehiculo)
  * @param {number} cantidad elementos con el mismo concepto
- * @param {*} ejercicios 
+ * @param {string} subData 
+ * @param {string} dataExtra 
+ * @param {string} dataExtra2
+ * @param {number} cantidad
+ * @param {number} importe
  * @param {number} importe total del importe
  * @returns {HTMLDivElement}
  */
-const createRow = (id, cantidad = 1, ejercicios, importe, propietario, placa) => {
+const createRow = (id, concepto = '', subData = '', dataExtra = '', dataExtra2 = '', cantidad = 1, importe = 0) => {
   const rowPrincipal = document.createElement('div');
   rowPrincipal.className = 'row d-flex justify-content-center border-top';
   rowPrincipal.id = id;
-  const nombreConcepto = nameConcept("TenenciaParticular", ejercicios, propietario, placa);
-  const moreData = dataExtra(id, cantidad, importe);
+
+  const nombreConcepto = nameConcept(concepto, subData, dataExtra, dataExtra2);
+  const moreData = extraData(id, cantidad, importe);
+
   rowPrincipal.appendChild(nombreConcepto);
   rowPrincipal.appendChild(moreData);
   return rowPrincipal;
@@ -378,7 +391,7 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   divContenedor.appendChild(h6);
   divContenedor.appendChild(p);
   divRow.appendChild(divContenedor);
-  
+
   const divNombre = document.createElement('div');
   divNombre.className = 'ml-5 flex-column d-flex pad-left';
 
@@ -389,7 +402,7 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   p = document.createElement('p');
   p.className = 'mob-text prueba';
   p.textContent = data4;
-  
+
   divNombre.appendChild(h6);
   divNombre.appendChild(p);
 
@@ -399,7 +412,7 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   return div;
 }
 
-const dataExtra = (id, cantidad, importe = '0') => {
+const extraData = (id, cantidad, importe = '0') => {
   const divPrincipal = document.createElement('div');
   divPrincipal.className = 'my-auto col-7';
 
@@ -452,49 +465,49 @@ const dataExtra = (id, cantidad, importe = '0') => {
   return divPrincipal;
 }
 
-$("#GenerarPago").click(async function(){
-    document.getElementById('Progreso').hidden = false;
-    document.getElementById('Generar').hidden = true;
-    let respons = "";
-    const currentCart = getDataCart();
-    // caso de que existan datos Eduardo y Kike
-    // paso 1 enviar datos de Enrique -> referencia
-    // paso 2 enviar datos Eduardo con referencia
-    // paso 3 unir datos eduardo con referenciaKIKE
-    
-    // Caso solo datos Eduardo
-    // Genera referencia y listo
+$("#GenerarPago").click(async function () {
+  document.getElementById('Progreso').hidden = false;
+  document.getElementById('Generar').hidden = true;
+  let respons = "";
+  const currentCart = getDataCart();
+  // caso de que existan datos Eduardo y Kike
+  // paso 1 enviar datos de Enrique -> referencia
+  // paso 2 enviar datos Eduardo con referencia
+  // paso 3 unir datos eduardo con referenciaKIKE
 
-    // Caso kike
-    // Genera su referencia propia.
+  // Caso solo datos Eduardo
+  // Genera referencia y listo
+
+  // Caso kike
+  // Genera su referencia propia.
 
 
-    for(const concepto of currentCart.conceptos.vehiculos){
-        const serie = concepto.serie;
-        const placa = concepto.placa;
-        const Tplaca = concepto.Tplaca;
-        const clase = concepto.clase;
-        const conceptos = JSON.stringify(concepto.conceptos);
-        const infov = JSON.stringify(concepto.InfoV);
-         respons = await $.ajax({
-            type: "POST",
-            url: "HojaReferencia.php",
-            dataType: 'JSON',
-            data: {serie: serie, placa: placa, clase: clase, Tplaca: Tplaca, InformacionV: conceptos, InfoCV: infov}
-//            data: {Datos: currentCart}
-        }).done(function (respuesta){
-            window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref="+respuesta+"&cart=true");
-            document.getElementById('Progreso').hidden = true;
-            document.getElementById('Generar').hidden = false;
-            cleanCart();
-            window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
-        }).fail(function(jqXHR) {
-            alert("Internal Server Error " + jqXHR.status)
-            document.getElementById('Progreso').hidden = true;
-            document.getElementById('Generar').hidden = false;
-        });
-    }
-    console.log(respons);
+  for (const concepto of currentCart.conceptos.vehiculos) {
+    const serie = concepto.serie;
+    const placa = concepto.placa;
+    const Tplaca = concepto.Tplaca;
+    const clase = concepto.clase;
+    const conceptos = JSON.stringify(concepto.conceptos);
+    const infov = JSON.stringify(concepto.InfoV);
+    respons = await $.ajax({
+      type: "POST",
+      url: "HojaReferencia.php",
+      dataType: 'JSON',
+      data: { serie: serie, placa: placa, clase: clase, Tplaca: Tplaca, InformacionV: conceptos, InfoCV: infov }
+      //            data: {Datos: currentCart}
+    }).done(function (respuesta) {
+      window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref=" + respuesta + "&cart=true");
+      document.getElementById('Progreso').hidden = true;
+      document.getElementById('Generar').hidden = false;
+      cleanCart();
+      window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
+    }).fail(function (jqXHR) {
+      alert("Internal Server Error " + jqXHR.status)
+      document.getElementById('Progreso').hidden = true;
+      document.getElementById('Generar').hidden = false;
+    });
+  }
+  console.log(respons);
 });
 
 
@@ -503,36 +516,36 @@ $("#GenerarPago").click(async function(){
   Enrique functions
 **/
 
-function buscaLocalStorage(parOpcion, parValor){
+function buscaLocalStorage(parOpcion, parValor) {
 
   if (typeof parValor !== 'string') return;
   const cart = getDataCart();
 
-  let vehiculo=false;
+  let vehiculo = false;
 
   // ver para cunado este vacio otros
-  if( !cart.hasOwnProperty('conceptos') ) return false; 
-  if( !cart.conceptos.hasOwnProperty('otros') ) return false;
-  
-  let ultimo = cart.conceptos.otros.length-1;
-  
-  switch(parOpcion){
-      case "Placa":
-          for(i=ultimo; i>-1; i--){
-              if(!cart.conceptos.otros[i].objectFree.hasOwnProperty('PlacaActualVehiculo') ) continue;
-              if(cart.conceptos.otros[i].objectFree.PlacaActualVehiculo  === parValor) {
-                  return cart.conceptos.otros[i].objectFree;
-              }
-          }
-          break;
-      case "NoDeSerie":
-          for(i=ultimo; i>-1; i--){
-            if(!cart.conceptos.otros[i].objectFree.hasOwnProperty('NumeroSerieVehiculo') ) continue;
-              if(cart.conceptos.otros[i].objectFree.NumeroSerieVehiculo  === parValor) {
-                  return cart.conceptos.otros[i].objectFree;
-              }
-          }
-          break;
-  }   
-return vehiculo;
+  if (!cart.hasOwnProperty('conceptos')) return false;
+  if (!cart.conceptos.hasOwnProperty('otros')) return false;
+
+  let ultimo = cart.conceptos.otros.length - 1;
+
+  switch (parOpcion) {
+    case "Placa":
+      for (i = ultimo; i > -1; i--) {
+        if (!cart.conceptos.otros[i].objectFree.hasOwnProperty('PlacaActualVehiculo')) continue;
+        if (cart.conceptos.otros[i].objectFree.PlacaActualVehiculo === parValor) {
+          return cart.conceptos.otros[i].objectFree;
+        }
+      }
+      break;
+    case "NoDeSerie":
+      for (i = ultimo; i > -1; i--) {
+        if (!cart.conceptos.otros[i].objectFree.hasOwnProperty('NumeroSerieVehiculo')) continue;
+        if (cart.conceptos.otros[i].objectFree.NumeroSerieVehiculo === parValor) {
+          return cart.conceptos.otros[i].objectFree;
+        }
+      }
+      break;
+  }
+  return vehiculo;
 }
