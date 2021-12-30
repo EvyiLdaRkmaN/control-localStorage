@@ -30,6 +30,7 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * @property {number} cuentas.cuenta
  * @property {number} cuentas.cantidad
  * @property {number} cuentas.importe
+ * @property {number} cuentas.ejercicio
  * @property {object[]} objectFree
  */
 
@@ -291,12 +292,15 @@ function addObjeFree(id, object) {
 function findSeriePublic(serie) {
   const cuentas = [13600, 13750, 13711];
   const cart = getDataCart();
+  
   if (!cart.conceptos || !cart.conceptos.otros) {
     console.log('No hay elementos donde buscar');
     return false;
   }
   // TODO: validar si pertenece al año actual
-  return cart.conceptos.otros.find((v) => v.serie === serie).cuentas.some(c => cuentas.includes(c.cuenta));
+  const year = new Date().getFullYear();
+  
+  return cart.conceptos.otros.find((v) => v.serie === serie).cuentas.some(c => (cuentas.includes(c.cuenta) && c.ejercicio === `${year}`));
 }
 
 function cleanCart() {
