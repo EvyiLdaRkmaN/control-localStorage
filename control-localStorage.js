@@ -86,7 +86,7 @@ const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart
  * @param {object[]} concepts 
  * @returns {string|boolean}
  */
-function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) { //TODO: Revisar el uso de variable infoNew, por que parece no ser usada
+function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) { 
   console.log('agregando vehiculo')
   let conceptNew;
   let infoNew;
@@ -107,22 +107,22 @@ function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) {
   if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }] } };
 
   else {
-    const vehiculosOld = currentCart.conceptos.vehiculos;
+    
+    if (!currentCart.conceptos.vehiculos) {
+      newcarrito = {...currentCart, conceptos:{...currentCart.conceptos, vehiculos:[{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }]}}
+      setStorage(newcarrito);
+      return true;
+    }
+    // buscando si existe el vehiculo
     const index = currentCart.conceptos.vehiculos.findIndex(v => v.serie === serie);
-    console.log('intentando agregar cuando existe', index)
-
     if (index != -1) {
-      console.log('existe la serie en vehiculo')
       currentCart.conceptos.vehiculos.splice( index,1,{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario });
       newcarrito = currentCart;
     }
     else {
       currentCart.conceptos.vehiculos.push({ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario });
       newcarrito = currentCart;
-      // newcarrito = { ...currentCart, conceptos: { ...currentCart.conceptos, vehiculos: [...vehiculosOld, { serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }], } };
-      // console.log('entra en else= ', newcarrito);
     }
-    console.log('carricuto nuevo', newcarrito);
   }
   setStorage(newcarrito);
   return true;
@@ -297,7 +297,7 @@ function findSeriePublic(serie) {
     console.log('No hay elementos donde buscar');
     return false;
   }
-  // TODO: validar si pertenece al año actual
+
   const year = new Date().getFullYear();
   
   return cart.conceptos.otros.find((v) => v.serie === serie).cuentas.some(c => (cuentas.includes(c.cuenta) && c.ejercicio === `${year}`));
@@ -310,6 +310,17 @@ function cleanCart() {
 function deleteConcept(id) {
   const divTabla = document.getElementById('Contenidopago');
   divTabla.removeChild(document.getElementById(id));
+}
+
+function deleteConceptsCart() {
+  const cart = getDataCart();
+  if (!cart.conceptos) {
+    console.log('No hay nada en el carrito');
+    return;
+  }
+  delete cart.conceptos;
+  console.log('estaus de nuevo carrito', cart);
+  // setStorage(cart);
 }
 
 /**
@@ -437,9 +448,8 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   h6.className = 'mob-text';
   h6.textContent = data1;
 
-  let p = document.createElement('p');
-  p.className = 'mob-text';
-  p.textContent = data2;
+  let p = elementP(data2);
+
   divContenedor.appendChild(h6);
   divContenedor.appendChild(p);
   divRow.appendChild(divContenedor);
@@ -451,9 +461,7 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   h6.className = 'mob-text prueba';
   h6.textContent = data3;
 
-  p = document.createElement('p');
-  p.className = 'mob-text prueba';
-  p.textContent = data4;
+  p = elementP(data4, 'prueba');
 
   divNombre.appendChild(h6);
   divNombre.appendChild(p);
@@ -462,6 +470,20 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   div.appendChild(divRow);
 
   return div;
+}
+
+/**
+ * Crea un elmeento P con clase pre definida
+ * @param {string} textContent texto a mostrar
+ * @param {string} classExtra por si quiere agregar una class extra
+ * @returns {HTMLPreElement} elemento P
+ */
+const elementP = (textContent, classExtra = '') => {
+  const p = document.createElement('p');
+  p.className = 'mob-text '+ classExtra
+  p.textContent = textContent;
+
+  return p;
 }
 
 const extraData = (id, cantidad, importe = '0') => {
@@ -601,3 +623,6 @@ function buscaLocalStorage(parOpcion, parValor) {
   }
   return vehiculo;
 }
+
+
+// TEST
