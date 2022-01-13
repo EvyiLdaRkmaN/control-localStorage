@@ -30,7 +30,6 @@ const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 
  * @property {number} cuentas.cuenta
  * @property {number} cuentas.cantidad
  * @property {number} cuentas.importe
- * @property {number} cuentas.ejercicio
  * @property {object[]} objectFree
  */
 
@@ -86,7 +85,7 @@ const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart
  * @param {object[]} concepts 
  * @returns {string|boolean}
  */
-function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) { 
+function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario, rfc) { 
   console.log('agregando vehiculo')
   let conceptNew;
   let infoNew;
@@ -104,23 +103,23 @@ function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario) {
       * @type {cart}
   */
   let newcarrito;
-  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }] } };
+  if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario, rfc }] } };
 
   else {
     
     if (!currentCart.conceptos.vehiculos) {
-      newcarrito = {...currentCart, conceptos:{...currentCart.conceptos, vehiculos:[{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario }]}}
+      newcarrito = {...currentCart, conceptos:{...currentCart.conceptos, vehiculos:[{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario, rfc }]}}
       setStorage(newcarrito);
       return true;
     }
     // buscando si existe el vehiculo
     const index = currentCart.conceptos.vehiculos.findIndex(v => v.serie === serie);
     if (index != -1) {
-      currentCart.conceptos.vehiculos.splice( index,1,{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario });
+      currentCart.conceptos.vehiculos.splice( index,1,{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario, rfc });
       newcarrito = currentCart;
     }
     else {
-      currentCart.conceptos.vehiculos.push({ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario });
+      currentCart.conceptos.vehiculos.push({ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario, rfc });
       newcarrito = currentCart;
     }
   }
@@ -189,10 +188,10 @@ function getNumConcepts() {
   }
   let suma = 0;
   if (cart.conceptos.vehiculos) {
-    suma += cart.conceptos.vehiculos.length;
-  }
+      suma += cart.conceptos.vehiculos.length;
+  }  
   if (cart.conceptos.otros) {
-    suma += cart.conceptos.otros.length;
+      suma += cart.conceptos.otros.length;
   }
   return suma;
 }
@@ -231,16 +230,16 @@ function deleteConceptVehiculo(serie) {
   // buscando el elemento dentro de conecptos
   let index = -1;
   let indexOtros = -1;
-  if (cart.conceptos.vehiculos) {
+  if(cart.conceptos.vehiculos){
     index = cart.conceptos.vehiculos.findIndex(e => e.serie === serie);
-    if (index != -1) {
-      cart.conceptos.vehiculos.splice(index, 1);
+    if(index != -1){
+        cart.conceptos.vehiculos.splice(index, 1);
     }
   }
-  if (cart.conceptos.otros) {
+  if(cart.conceptos.otros){
     indexOtros = cart.conceptos.otros.findIndex(e => e.id === serie);
-    if (indexOtros != -1) {
-      cart.conceptos.otros.splice(indexOtros, 1);
+    if(indexOtros != -1){
+        cart.conceptos.otros.splice(indexOtros, 1);
     }
   }
 
@@ -250,7 +249,6 @@ function deleteConceptVehiculo(serie) {
   }
   setStorage(cart);
   console.log('Elementos eliminados');
-  return cart;
 }
 /**
  * 
@@ -292,15 +290,12 @@ function addObjeFree(id, object) {
 function findSeriePublic(serie) {
   const cuentas = [13600, 13750, 13711];
   const cart = getDataCart();
-  
   if (!cart.conceptos || !cart.conceptos.otros) {
     console.log('No hay elementos donde buscar');
     return false;
   }
-
-  const year = new Date().getFullYear();
-  
-  return cart.conceptos.otros.find((v) => v.serie === serie).cuentas.some(c => (cuentas.includes(c.cuenta) && c.ejercicio === `${year}`));
+  // TODO: validar si pertenece al año actual
+  return cart.conceptos.otros.find((v) => v.serie === serie).cuentas.some(c => cuentas.includes(c.cuenta));
 }
 
 function cleanCart() {
@@ -312,39 +307,21 @@ function deleteConcept(id) {
   divTabla.removeChild(document.getElementById(id));
 }
 
-function deleteConceptsCart() {
-  const cart = getDataCart();
-  if (!cart.conceptos) {
-    console.log('No hay nada en el carrito');
-    return;
-  }
-  delete cart.conceptos;
-  console.log('estaus de nuevo carrito', cart);
-  // setStorage(cart);
-}
-
 /**
  * Removera completamente el elemento de la vista
  * al igual que eliminará el elemnto del localStorage
  * @param {string} id elemento a eliminar
  */
 function removeElementCart(id) {
-  const { conceptos: { vehiculos, otros } } = deleteConceptVehiculo(id);
+  deleteConceptVehiculo(id);
   document.getElementById('main').removeChild(document.getElementById(id));
-  // const { conceptos: { vehiculos } } = getDataCart();
+  const { conceptos: { vehiculos } } = getDataCart();
 
   // Calculando el nuevo total
   let importetotal = 0;
-  if (vehiculos) {
-    for (const { conceptos } of vehiculos) {
-      for (const { TotalPagar } of conceptos) {
-        importetotal += TotalPagar;
-      }
-    }
-  }
-  if(otros){
-    for (const { vista } of otros) {
-      importetotal += vista.importeTotal;
+  for (const { conceptos } of vehiculos) {
+    for (const { TotalPagar } of conceptos) {
+      importetotal += TotalPagar;
     }
   }
 
@@ -368,6 +345,18 @@ document.addEventListener("DOMContentLoaded", function () {
   }, milisegundos);
 });
 
+function deleteConceptsCart() {
+    const cart = getDataCart();
+    if (!cart.conceptos) {
+        console.log('No hay nada en el carrito');
+        return;
+    }
+    delete cart.conceptos;
+    console.log('estaus de nuevo carrito', cart);
+    setStorage(cart);
+    window.location.reload();
+}
+
 /**
  * ========================================================================
  */
@@ -376,26 +365,27 @@ function createViewCart() {
 
   const main = document.getElementById('main');
   const { conceptos: { vehiculos, otros } } = getDataCart();
+  
 
   let totalfinal = 0;
-  if (vehiculos) {
-    for (const concepto of vehiculos) {
-      let importetotal = 0;
-      let ejercicios = "";
-      for (const conceptVehiculo of concepto.conceptos) {
-        if (conceptVehiculo.Concepto == "TENENCIA") {
-          ejercicios += `${conceptVehiculo.Ejercicio},`;
+  if(vehiculos){
+      for (const concepto of vehiculos) {
+        let importetotal = 0;
+        let ejercicios = "";
+        for (const conceptVehiculo of concepto.conceptos) {
+          if (conceptVehiculo.Concepto == "TENENCIA") {
+            ejercicios += `${conceptVehiculo.Ejercicio},`;
+          }
+          importetotal += conceptVehiculo.Subtotal;
         }
-        importetotal += conceptVehiculo.TotalPagar;
+        main.appendChild(createRow(concepto.serie, "TenenciaParticular", ejercicios, concepto.Propietario, "Serie:" + concepto.serie + ";Placa:" + concepto.placa, 1, formatter.format(importetotal)));
+        totalfinal += importetotal;
       }
-      main.appendChild(createRow(concepto.serie, "TenenciaParticular", ejercicios, concepto.Propietario, "Serie:" + concepto.serie + ";Placa:" + concepto.placa, 1, formatter.format(importetotal)));
-      totalfinal += importetotal;
-    }
   }
-  if (otros) {
+  if(otros){
     for (const { id, vista } of otros) {
-      main.appendChild(createRow(id, vista.titulo, vista.descripcion, '', '', 1, formatter.format(vista.importeTotal)));
-      totalfinal += vista.importeTotal;
+        main.appendChild(createRow(id, vista.titulo, vista.descripcion, '', '', 1, formatter.format(vista.importeTotal)));
+        totalfinal += vista.importeTotal;
     }
   }
   document.getElementById('TotalFinal').textContent = formatter.format(totalfinal);
@@ -530,7 +520,7 @@ const extraData = (id, cantidad, importe = '0') => {
   console.log('id =>', id);
   i.onclick = () => removeElementCart(id);
 
-  divCol3.appendChild(i);
+  //divCol3.appendChild(i);
   divRow.appendChild(divCol3);
 
   divPrincipal.appendChild(divRow);
@@ -539,50 +529,53 @@ const extraData = (id, cantidad, importe = '0') => {
   return divPrincipal;
 }
 
-// $("#GenerarPago").click(async function () {
-//   document.getElementById('Progreso').hidden = false;
-//   document.getElementById('Generar').hidden = true;
-//   let respons = "";
-//   const currentCart = getDataCart();
-//   // caso de que existan datos Eduardo y Kike
-//   // paso 1 enviar datos de Enrique -> referencia
-//   // paso 2 enviar datos Eduardo con referencia
-//   // paso 3 unir datos eduardo con referenciaKIKE
+$("#GenerarPago").click(async function () {
+    document.getElementById('Progreso').hidden = false;
+    document.getElementById('Generar').hidden = true;
+    let respons = "";
+    const currentCart = getDataCart();
+    let telefono = document.getElementById('telefono').value;
+    let mensaje = "";
+    if(telefono == ""){
+        mensaje = "Debe de ingresar un Telefono.";
+    }else if(telefono.length != 10){
+        mensaje = "El telefono debe tener 10 digitos.";
+    }
+    if(mensaje != ""){
+        toastr.error(mensaje, "Información Importante!");
+        document.getElementById('Progreso').hidden = true;
+        document.getElementById('Generar').hidden = false;
+        return false;
+    }
+  // caso de que existan datos Eduardo y Kike
+  // paso 1 enviar datos de Enrique -> referencia
+  // paso 2 enviar datos Eduardo con referencia
+  // paso 3 unir datos eduardo con referenciaKIKE
 
-//   // Caso solo datos Eduardo
-//   // Genera referencia y listo
+  // Caso solo datos Eduardo
+  // Genera referencia y listo
 
-//   // Caso kike
-//   // Genera su referencia propia.
-
-
-//   for (const concepto of currentCart.conceptos.vehiculos) {
-//     const serie = concepto.serie;
-//     const placa = concepto.placa;
-//     const Tplaca = concepto.Tplaca;
-//     const clase = concepto.clase;
-//     const conceptos = JSON.stringify(concepto.conceptos);
-//     const infov = JSON.stringify(concepto.InfoV);
-//     respons = await $.ajax({
-//       type: "POST",
-//       url: "HojaReferencia.php",
-//       dataType: 'JSON',
-//       data: { serie: serie, placa: placa, clase: clase, Tplaca: Tplaca, InformacionV: conceptos, InfoCV: infov }
-//       //            data: {Datos: currentCart}
-//     }).done(function (respuesta) {
-//       window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref=" + respuesta + "&cart=true");
-//       document.getElementById('Progreso').hidden = true;
-//       document.getElementById('Generar').hidden = false;
-//       cleanCart();
-//       window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
-//     }).fail(function (jqXHR) {
-//       alert("Internal Server Error " + jqXHR.status)
-//       document.getElementById('Progreso').hidden = true;
-//       document.getElementById('Generar').hidden = false;
-//     });
-//   }
-//   console.log(respons);
-// });
+  // Caso kike
+  // Genera su referencia propia.
+  
+    respons = await $.ajax({
+        type: "POST",
+        url: "HojaReferencia.php",
+        dataType: 'JSON',
+        data: { Cobros: currentCart, telefono: telefono }
+    }).done(function (respuesta) {
+        window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref=" + respuesta + "&cart=true");
+        document.getElementById('Progreso').hidden = true;
+        document.getElementById('Generar').hidden = false;
+        cleanCart();
+        window.location.replace("https://esefina.ingresos-guerrero.gob.mx/menu.php");
+    }).fail(function (jqXHR) {
+        alert("Internal Server Error " + jqXHR.status)
+        document.getElementById('Progreso').hidden = true;
+        document.getElementById('Generar').hidden = false;
+    });
+    console.log(respons);
+});
 
 
 /**
@@ -623,6 +616,3 @@ function buscaLocalStorage(parOpcion, parValor) {
   }
   return vehiculo;
 }
-
-
-// TEST
