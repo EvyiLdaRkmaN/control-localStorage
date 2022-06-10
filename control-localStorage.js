@@ -1,6 +1,8 @@
 const ITEM_CART = 'carrito';
 const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
+const conceptTransportes = [47402, 25318, 25319, 25320, 25321, 25301, 25330, 25345, 25313, 25307, 25317];
+
 /**
  * definición de conceptos
  * @typedef {object} concepto
@@ -68,7 +70,8 @@ function initCarrito(cart) {
     let IdCaja = $('#IdCaja').val();
     let UsuCajero = $('#UsuCajero').val();
     let IdOficina = $('#IdOficina').val();
-    localStorage.setItem(ITEM_CART, JSON.stringify({ IdCaja, UsuCajero, IdOficina }));
+    let IdUsuario = $('#IdUsuario').val();
+    localStorage.setItem(ITEM_CART, JSON.stringify({ IdCaja, UsuCajero, IdOficina, IdUsuario }));
   }
   return getDataCart();
 }
@@ -155,6 +158,17 @@ function findSerie(serie) {
   return vehiculo;
 }
 
+/**
+ * 
+ * 1. **E01**: si existe orden de pago(`folioTrasnportes`), permitir agregar unicamente registros en
+ * otros que contengan conceptos de transportes
+ *    1. **E01-01**: si existen conceptos de transportes. No permitir agregar conceptos de particular
+ * 2. Si existe orden de pago, no permitir agregar vehiculos de tenencia particular
+ * 3. Si existe vehiculo: no permitir registro de conceptos de transportes(`conceptTransportes`)
+ * 4. Propuesta: No permitir agregar fuentes de ingreso diferentes a transportes, solo si
+ * si ya existe un conecto de transportes ya agregado o si esta(`folioTransportes`)
+ * 5. 
+ */
 function addConcept(concepts) {
   console.log(concepts)
   // validaciones
@@ -168,7 +182,23 @@ function addConcept(concepts) {
    * @type {cart}
    */
   let newcarrito;
-  if (!carrito.conceptos) newcarrito = { ...carrito, conceptos: { otros: [...conceptNew] } };
+
+  
+  if (!carrito.conceptos) {
+    
+    // validate E01
+    const findFolioTransportes = carrito.conceptos.otros.find(value => value.folioTransportes !== undefined);
+
+    if (findFolioTransportes) {
+      // buscando E01-01
+      const e0101 = carrito.conceptos.otros.find(value => value.cuentas.find(c => !conceptTransportes.includes(c.cuenta)) !== undefined); 
+      if (e0101 !== undefined) {
+        return "no se puede combinar conceptos de publico con transportes";
+      }
+    }
+
+    newcarrito = { ...carrito, conceptos: { otros: [...conceptNew] } };
+  }
   else {
     const conceptsOld = carrito.conceptos.otros;
     newcarrito = { ...carrito, conceptos: { otros: [...conceptsOld, ...conceptNew] } };
@@ -336,14 +366,14 @@ function updateNumCart() {
   }
 }
 
-document.addEventListener("DOMContentLoaded", function () {
-  // Invocamos cada 5 segundos ;)
-  const milisegundos = .1 * 1000;
-  setInterval(function () {
-    // No esperamos la respuesta de la petición porque no nos importa
-    updateNumCart()
-  }, milisegundos);
-});
+// document.addEventListener("DOMContentLoaded", function () {
+//   // Invocamos cada 5 segundos ;)
+//   const milisegundos = .1 * 1000;
+//   setInterval(function () {
+//     // No esperamos la respuesta de la petición porque no nos importa
+//     updateNumCart()
+//   }, milisegundos);
+// });
 
 function deleteConceptsCart() {
     const cart = getDataCart();
@@ -438,8 +468,9 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   h6.className = 'mob-text';
   h6.textContent = data1;
 
-  let p = elementP(data2);
-
+  let p = document.createElement('p');
+  p.className = 'mob-text';
+  p.textContent = data2;
   divContenedor.appendChild(h6);
   divContenedor.appendChild(p);
   divRow.appendChild(divContenedor);
@@ -451,7 +482,9 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   h6.className = 'mob-text prueba';
   h6.textContent = data3;
 
-  p = elementP(data4, 'prueba');
+  p = document.createElement('p');
+  p.className = 'mob-text prueba';
+  p.textContent = data4;
 
   divNombre.appendChild(h6);
   divNombre.appendChild(p);
@@ -460,20 +493,6 @@ const nameConcept = (data1 = 'data1', data2 = 'data2', data3 = 'data3', data4 = 
   div.appendChild(divRow);
 
   return div;
-}
-
-/**
- * Crea un elmeento P con clase pre definida
- * @param {string} textContent texto a mostrar
- * @param {string} classExtra por si quiere agregar una class extra
- * @returns {HTMLPreElement} elemento P
- */
-const elementP = (textContent, classExtra = '') => {
-  const p = document.createElement('p');
-  p.className = 'mob-text '+ classExtra
-  p.textContent = textContent;
-
-  return p;
 }
 
 const extraData = (id, cantidad, importe = '0') => {
@@ -533,13 +552,48 @@ $("#GenerarPago").click(async function () {
     document.getElementById('Progreso').hidden = false;
     document.getElementById('Generar').hidden = true;
     let respons = "";
+    let C58444 = false;
+    let C58461 = false;
     const currentCart = getDataCart();
-    let telefono = document.getElementById('telefono').value;
+    console.log(currentCart.IdCaja);
+//    let telefono = document.getElementById('telefono').value;
     let mensaje = "";
-    if(telefono == ""){
-        mensaje = "Debe de ingresar un Telefono.";
-    }else if(telefono.length != 10){
-        mensaje = "El telefono debe tener 10 digitos.";
+    
+    if(currentCart.conceptos?.otros){
+        for(const fuentes of currentCart.conceptos.otros){
+            for(const fuente of fuentes.cuentas){
+                if(fuente.cuenta == 58444){
+                    C58444 = true;
+                }else if(fuente.cuenta == 58461){
+                    C58461 = true;
+                }
+            }
+        }
+        if(C58444 && C58461){
+            mensaje = "Las fuentes de ingreso 58444 y 58461 no se pueden cobrar juntas.";
+        }else if(C58444 && C58461 == false){
+            if(currentCart.conceptos.otros.length == 1 && !currentCart.conceptos.vehiculos){
+                //console.log("Pasa 1.");
+            }else{
+                mensaje = "Las fuentes de ingreso 58444 no se pueden cobrar con otros conceptos.";
+            }
+        }else if(C58461 && C58444 == false){
+            if(currentCart.conceptos.otros.length == 1 && !currentCart.conceptos.vehiculos){
+                //console.log("Pasa 2.");
+            }else{
+                mensaje = "Las fuentes de ingreso 58461 no se pueden cobrar con otros conceptos.";
+            }
+        }else{
+            //console.log("Continua 2.");
+        }
+    }else{
+        //console.log("Continua 3.")
+    }
+    
+    
+    if(currentCart.IdCaja == 0){
+        mensaje = "Dede de tener una Caja asignada.";
+        return false;
     }
     if(mensaje != ""){
         toastr.error(mensaje, "Información Importante!");
@@ -547,6 +601,7 @@ $("#GenerarPago").click(async function () {
         document.getElementById('Generar').hidden = false;
         return false;
     }
+    
   // caso de que existan datos Eduardo y Kike
   // paso 1 enviar datos de Enrique -> referencia
   // paso 2 enviar datos Eduardo con referencia
@@ -562,7 +617,7 @@ $("#GenerarPago").click(async function () {
         type: "POST",
         url: "HojaReferencia.php",
         dataType: 'JSON',
-        data: { Cobros: currentCart, telefono: telefono }
+        data: { Cobros: currentCart}
     }).done(function (respuesta) {
         window.open("https://esefina.ingresos-guerrero.gob.mx/pasarela/?ref=" + respuesta + "&cart=true");
         document.getElementById('Progreso').hidden = true;
