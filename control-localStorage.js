@@ -1,7 +1,7 @@
 const ITEM_CART = 'carrito';
 const formatter = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 2 });
 
-const conceptTransportes = [47402, 25318, 25319, 25320, 25321, 25301, 25330, 25345, 25313, 25307, 25317];
+const conceptTransportes = ['47402', '25318', '25319', '25320', '25321', '25301', '25330', '25345', '25313', '25307', '25317'];
 
 /**
  * definición de conceptos
@@ -176,7 +176,7 @@ function findSerie(serie) {
 /**
  * 
  * 1. **E01**: si existe orden de pago(`folioTrasnportes`), permitir agregar unicamente registros en
- * otros que contengan conceptos de transportes
+ * `carrito.conceptos.otros` que contengan conceptos de transportes
  *    1. **E01-01**: si existen conceptos de transportes. No permitir agregar conceptos de particular
  * 2. Si existe orden de pago, no permitir agregar vehiculos de tenencia particular
  * 3. Si existe vehiculo: no permitir registro de conceptos de transportes(`conceptTransportes`)
@@ -199,22 +199,16 @@ function addConcept(concepts) {
   let newcarrito;
 
   
-  if (!carrito.conceptos) {
-    
+  if (!carrito.conceptos) newcarrito = { ...carrito, conceptos: { otros: [...conceptNew] } };
+  else {
     // validate E01
     const findFolioTransportes = carrito.conceptos.otros.find(value => value.folioTransportes !== undefined);
-
+    console.log('findfolioTranportes === ', findFolioTransportes);
     if (findFolioTransportes) {
       // buscando E01-01
-      const e0101 = carrito.conceptos.otros.find(value => value.cuentas.find(c => !conceptTransportes.includes(c.cuenta)) !== undefined); 
-      if (e0101 !== undefined) {
-        return "no se puede combinar conceptos de publico con transportes";
-      }
-    }
-
-    newcarrito = { ...carrito, conceptos: { otros: [...conceptNew] } };
-  }
-  else {
+      const e0101 = conceptNew.find( value => value.cuentas.find(c => !conceptTransportes.includes(c.cuenta)) !== undefined );
+      if (e0101 !== undefined) return "no se puede combinar conceptos de publico con transportes";
+    }    
     const conceptsOld = carrito.conceptos.otros;
     newcarrito = { ...carrito, conceptos: { otros: [...conceptsOld, ...conceptNew] } };
   }

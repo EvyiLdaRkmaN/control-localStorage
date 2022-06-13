@@ -292,8 +292,9 @@
   //   console.log('storage event =>');
   // });
   // deleteConceptVehiculo('0123TEST');
-  const result = addVehiculo('serieTest', [{test:'test1'}], [{info:'test'}], 'placa', 'clase', 'Tplaca', 'Propietario');
-  // console.log('result add', result);
+  // const result = addVehiculo('serieTest', [{test:'test1'}], [{info:'test'}], 'placa', 'clase', 'Tplaca', 'Propietario');
+  const result = addConcept([{cuentas:[{cuenta:"25319"}]}]);
+  console.log('result add', result);
   createViewCart();
   // deleteConceptsCart();
   // getLastYearVehiculo('0123TEST');
