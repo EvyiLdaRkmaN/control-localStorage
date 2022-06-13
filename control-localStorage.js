@@ -85,11 +85,14 @@ const setStorage = (cart) => localStorage.setItem(ITEM_CART, JSON.stringify(cart
 /**
  * 
  * @param {string} serie 
- * @param {object[]} concepts 
+ * @param {concepto[] | object} concepts 
  * @returns {string|boolean}
  */
 function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario, rfc) { 
   console.log('agregando vehiculo')
+  /**
+   * @type {concepto[]}
+   */
   let conceptNew;
   let infoNew;
   if (Array.isArray(concepts)) conceptNew = concepts;
@@ -106,9 +109,21 @@ function addVehiculo(serie, concepts, info, placa, clase, Tplaca, Propietario, r
       * @type {cart}
   */
   let newcarrito;
+  
+  const findFolioTransportes = currentCart.conceptos?.otros?.find(value => value.folioTransportes !== undefined);
+
+  console.log('exist folio transporte? ', findFolioTransportes);
+
   if (!currentCart.conceptos) newcarrito = { ...currentCart, conceptos: { vehiculos: [{ serie, conceptos: [...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario, rfc }] } };
 
   else {
+
+    // validando si existen conceptos de transportes en el nuevo vehiculo que se quiere agregar
+    // Si existe algun concepto de particular, genera error.
+    if (findFolioTransportes) {
+      const onlyTranpost = conceptNew.find(value => !conceptTransportes.includes(value.Concepto));
+      if (onlyTranpost) return 'No puede haber conceptos de particular con publico';
+    }
     
     if (!currentCart.conceptos.vehiculos) {
       newcarrito = {...currentCart, conceptos:{...currentCart.conceptos, vehiculos:[{serie, conceptos:[...conceptNew], InfoV: [...infoNew], placa, clase, Tplaca, Propietario, rfc }]}}
